@@ -18,3 +18,5 @@ Setting up MySQL DB:
 1. open sql script in mysql workbench
 2. create a database schema named 'secprj'
 3. ctrl + shift + enter to run the script
+
+[OWASP Top 10 Vulnerabilities]: <https://owasp.org/www-project-top-ten/>
