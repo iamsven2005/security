@@ -1,0 +1,153 @@
+{% extends 'layouts/admin_base.html' %}
+{% block title %}
+Onsite form
+{% endblock title %}
+{% block content %}
+{% from "_formHelper.html" import render_field %}
+
+<div class="row">
+    <!-- LHS -->
+    <div class="col-lg-5">
+        <nav>
+            <ul class="nav nav-tabs">
+
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#">Info</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin/updateproduct/{{product.product_id}}">Update</a>
+            </ul>
+        </nav>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <p style="font-size: 30px;"><strong><a href="/admin/product"><i class="fa fa-arrow-left"
+                                aria-hidden="true"></i></a>
+                        {{ product.product_name }}</strong></p>
+            </div>
+            <div class="d-flex justify-content-center">
+                <img src="{{url_for('static', filename='media/product_img/' + product.product_id + '.png')}}"
+                    class="card-img-top img-fluid" alt="product image" style="width: 320px; height: 180px;">
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Attr.</th>
+                            <th>Info</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Status:</td>
+                            <td>
+                                {% if product.product_status == 'Active' %}
+
+                                <form action="{{url_for('product.product_status', id=product.product_id)}}"
+                                    id="product.product_id" method="POST">
+                                    <button class="btn btn-success">{{ product.product_status }}</button>
+                                </form>
+                            </td>
+                            {% elif product.product_status == 'Inactive' %}
+                            <td>
+                                <form action="{{url_for('product.product_status', id=product.product_id)}}"
+                                    id="product.product_id" method="POST">
+                                    <button class="btn btn-danger">{{ product.product_status }}</button>
+                                </form>
+
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Description:</td>
+                            <td>{{ product.product_desc }}</td>
+                        </tr>
+                        <tr>
+                            <td>Price:</td>
+                            <td>${{ product.product_price }}</td>
+                        </tr>
+                        <tr>
+                            <td>Download Txt:</td>
+                            <td>
+                                blank
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <p style="font-size: 30px;"><strong>
+                                Participants Info</strong></p>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>No.</th>
+                                    <th>Participant's Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                blah blah
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- RHS -->
+    <div class="col-lg-7">
+        <nav>
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#">Preview</a>
+                </li>
+            </ul>
+        </nav>
+        <div class="card mb-4">
+            <div class="card-header">
+                <p style="font-size: 30px;"><strong>
+                        Preview</strong></p>
+            </div>
+            <div class="card-body">
+                <div class="container">
+                    <div class="row mb-5">
+                        <!-- img -->
+                        <div class="col-lg-6">
+                            <img src="{{url_for('static', filename='media/product_img/' + product.product_id + '.png')}}"
+                                class="card-img-top img-fluid" alt="product image">
+                        </div>
+                        <!-- details -->
+                        <div class="col-lg-6">
+                            <h1 style="font-size: 20px;">{{ product.product_name }}</h1>
+                            <p class="text-sm" style="font-size: 10px;">{{ product.product_desc }}</p>
+                            <table class="table table-bordered">
+                                <tr>
+                                    <td>
+                                        <div class="row">
+                                            <div class="col">
+                                                <p class="text-sm" style="font-size: 13px;">bonk
+                                                </p>
+                                                <p style="font-size: 12.5px;">bonk
+                                                </p>
+                                            </div>
+                                            <div class="col">
+                                                <div class="d-flex justify-content-end mt-3">
+                                                    <button
+                                                        class="btn btn-dark btn-sm w-50 h-30 d-flex align-items-center justify-content-center px-0">
+                                                       Add Cart</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

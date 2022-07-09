@@ -1,0 +1,111 @@
+{% extends 'layouts/base.html' %}
+{% block title %}
+{{ product.product_name }}
+{% endblock title %}
+{% block content %}
+{% from '_formHelper.html' import render_field %}
+<div class="container" style="background-color: #fff; padding: 25px;">
+    <div class="d-flex justify-content-center">
+        <div class="row">
+            <div class="col-lg-5">
+                <div class="image_selected"><img
+                        src="{{url_for('static', filename='media/product_img/' + product.product_id + '.png')}}"
+                        class="card-img-top img-fluid" alt="product image" style="width: 320px; height: 180px;"></div>
+            </div>
+            <div class="col-lg-5">
+                <div class="product_description">
+                    <div class="product_name">
+                        <h5>{{ product.product_name }}</h5>
+                    </div>
+                    <div class="product-rating"><span class="badge badge-success"><i class="fa fa-star"></i> 4.5
+                            Star</span>
+                        <span class="rating-review">35 Ratings & 45 Reviews</span>
+                    </div>
+                    <div> <span class="product_price">${{ product.product_price }}</div>
+                    <hr class="singleline">
+                    <div> <span class="product_info">{{ product.product_desc }}</span></div>
+                    <hr class="singleline">
+                    <div class="order_info d-flex flex-row">
+                        <form action="#">
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="number">
+                                <div class="input-group">
+                                    <span class="minus input-group-btn">
+                                        <button type="button" class="btn btn-secondary" data-type="minus"
+                                            data-field="">-</span>
+                                    </button>
+                                    </span>
+                                    <input type="text" id="quantity" class="form-control input-number text-center"
+                                        value="1" min="1" max="{{ product.product_stock }}">
+                                    <span class="plus input-group-btn">
+                                        <button type="button" class="btn btn-secondary" data-type="minus"
+                                            data-field="">+</span>
+                                    </button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-6" style="margin-top: 10px;">
+                            {% if session['loggedin'] %}
+                            <button type="button" class="btn btn-primary shop-button" onclick="addcart(this)"
+                                id="{{ product.product_id }}">Add to Cart</button>
+                            <button type="button" class="btn btn-success shop-button">Buy Now</button>
+                            {% else %}
+                            <a href="/login"><button type="button" class="btn btn-primary shop-button">Add to Cart</button></a>
+                            <a href="/login"><button type="button" class="btn btn-success shop-button">Buy Now</button></a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    console.log($('#quantity').val())
+    function addcart(product) {
+        var product_id = product.id;
+        fetch(`${window.location.origin}/addcart`, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            method: 'POST',
+            body: JSON.stringify({
+                'product_id': product_id,
+                'quantity': $('#quantity').val()
+            })
+        })
+            .then((response) => {
+                return response.json()
+            })
+            .then((data) => {
+                console.log(data)
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    };
+</script>
+<script>
+    $(document).ready(function () {
+        $('.minus').click(function () {
+            var $input = $(this).parent().find('input');
+            var count = parseInt($input.val()) - 1;
+            count = count < 1 ? 1 : count;
+            $input.val(count);
+            $input.change();
+            return false;
+        });
+        $('.plus').click(function () {
+            var $input = $(this).parent().find('input');
+            if (parseInt($input.val()) != parseInt('{{product.product_stock}}')) {
+                $input.val(parseInt($input.val()) + 1);
+                $input.change();
+                return false;
+            }
+        });
+    });
+</script>
+{% endblock content %}

@@ -1,0 +1,44 @@
+{% extends 'layouts/admin_base.html' %}
+{% block title %}
+Onsite form
+{% endblock title %}
+{% block content %}
+{% from "_formHelper.html" import render_field %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-5">
+        <div class="card mb-4">
+            <div class="card-header">
+                <p style="font-size: 30px;"><strong><a href="/admin/product"><i class="fa fa-arrow-left"
+                                aria-hidden="true"></i></a>
+                        Product Form</strong></p>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {{ render_field(form.productname, class="form-control", placeholder="Product Name") }}
+                    {{ render_field(form.productdesc, class="form-control", placeholder="Product Description") }}
+                    {{ render_field(form.productprice, class="form-control", placeholder="Product Price ($)") }}
+                    {{ render_field(form.productstock, class="form-control", placeholder="Product Stock") }}
+                    {{ render_field(form.productimage, class="form-control",
+                    onchange="document.getElementById('preview_img').src = window.URL.createObjectURL(this.files[0])")
+                    }}
+                    <input type="submit" value="Confirm" class="btn btn-success mt-2">
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card mb-4">
+            <div class="card-header">
+                <p style="font-size: 30px;"><strong>Preview</strong></p>
+            </div>
+            <div class="card-body">
+                <div class="col-lg-4">
+                    <img id="preview_img" style="height: 120px; width: 240px" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

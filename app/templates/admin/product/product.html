@@ -1,0 +1,102 @@
+{% extends 'layouts/admin_base.html' %}
+{% block title %}
+Event Frontpage
+{% endblock title %}
+{% block content %}
+{% from "_formHelper.html" import render_field %}
+
+<!-- events table starts from here -->
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-table me-1"></i>
+        Product
+    </div>
+    <div class="card-body">
+        <div class="d-flex justify-content-end">
+            <input type="text" style="margin-right: 5px;" id="myInput" onkeyup="myFunction()"
+                placeholder="Search for products..">
+
+            <a href="/admin/addproduct">
+                <button class="btn btn-primary">
+                    + Add Product
+                </button>
+            </a>
+        </div>
+        <table class="table table-bordered" style="margin: 10px;">
+            <thead>
+                <tr class="header">
+                    <th>Name</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    <th>View</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody id="myTable">
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.product_name }}</td>
+                    <td>{{ product.product_stock }}</td>
+                    {% if product.product_status == 'Active' %}
+                    <td>
+                        <form action="{{url_for('product.product_status', id=product.product_id)}}" id="product.product_id"
+                            method="POST">
+                            <button class="btn btn-success">{{ product.product_status }}</button>
+                        </form>
+                    </td>
+                    {% elif product.product_status == 'Inactive' %}
+                    <td>
+                        <form action="{{url_for('product.product_status', id=product.product_id)}}" id="product.product_id"
+                            method="POST">
+                            <button class="btn btn-danger">{{ product.product_status }}</button>
+                        </form>
+                    </td>
+                    {% endif %}
+                    <td>
+                        <a href="/admin/productdetails/{{product.product_id}}">
+                            <button><i class="bi bi-pencil-square"></i></button></a>
+                    </td>
+                    <td>
+                        <form action="{{url_for('product.deleteproduct', id=product.product_id)}}" method="POST">
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                data-bs-target="#myModal_{{product.product_id}}"><i class="bi bi-trash"></i></button>
+                            <div class="modal" id="myModal_{{product.product_id}}">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Confirm Delete?</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to delete Event Key {{product.product_id}}?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <input type="submit" value="Delete" class="btn btn-danger">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#myInput").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+            $("#myTable tr").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+</script>
+
+{% endblock content %}

@@ -1,0 +1,54 @@
+{% extends 'layouts/base.html' %}
+{% block title %}
+2FA
+{% endblock title %}
+{% block content %}
+{% from '_formHelper.html' import render_field %}
+<script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+<section style="background-color: #eee;">
+  <div class="d-flex justify-content-center container">
+    <div class="border border-dark bg-light p-2">
+      <h5>Setting up Google Authenticator for 2FA</h5>
+      <ol>
+        <li><strong>Download Google Authenticator on your mobile</strong>(<a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en&gl=US" target="_blank">PlayStore</a>/<a href="https://apps.apple.com/us/app/google-authenticator/id388497605" target="_blank">AppStore</a>)</li>
+        <li><strong>Click the "+" button on the bottom right of the app and choose your preferred method</strong><br>
+          Setup Key method:<br>
+          Enter the secret key shown below and select Time-Based authentication before continuing aaaaaaaaaaaa<br>
+          Scan QR Code method:
+          Scan the QR Code shown below
+        </li>
+      </ol>
+      <div class="row">
+        <div class="col-lg-6 d-flex justify-content-center"><div id="qrcode-2"></div></div>
+        <div class="col-lg-6">
+          <label for="secret">Secret Token</label>
+          <input type="text" class="form-control" id="secret" value="{{ secret }}" readonly><button onclick="copySecret()"><i class="bi bi-clipboard"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+  function copySecret() {
+    /* Get the text field */
+    var copyText = document.getElementById("secret");
+
+    /* Select the text field */
+    copyText.select();
+    copyText.setSelectionRange(0, 99999); /*For mobile devices*/
+
+    /* Copy the text inside the text field */
+    document.execCommand("copy");
+
+    alert("Successfully copied TOTP secret token!");
+  }
+  var qrcode = new QRCode(document.getElementById("qrcode-2"), {
+    text: "otpauth://totp/Logo:{{ username }}?secret={{ secret }}&issuer=Logo",
+    width: 128,
+    height: 128,
+    colorDark: "#000000",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.H
+  });
+</script>
+{% endblock content %}
