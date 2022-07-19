@@ -10,13 +10,15 @@ from dotenv import load_dotenv
 # from healthcheck_ep import hash_ep
 
 load_dotenv()
-bcrypt = Bcrypt(app)
+
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv('secret_key')
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 #setting 16 * 1000 * 1000 returns 16mb megabyte
 app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']
+
+bcrypt = Bcrypt(app)
 
 #flask-mysqldb config
 app.config['MYSQL_HOST'] = os.getenv('MYSQL_HOST')
@@ -44,6 +46,7 @@ def ratelimit_handler(e):
 from app.routes.common_ep import endpoint as EP_Common
 from app.routes.auth_ep import endpoint as EP_Auth
 from app.routes.order_ep import endpoint as EP_Order
+from app.routes.reset_ep import endpoint as EP_Reset
 from app.routes.admin.frontpage_ep import endpoint as EP_Admin_Frontpage
 from app.routes.admin.product_ep import endpoint as EP_Admin_Product
 from app.routes.admin.user_ep import endpoint as EP_Admin_User
@@ -51,6 +54,7 @@ from app.routes.admin.user_ep import endpoint as EP_Admin_User
 app.register_blueprint(EP_Common, url_prefix="/")
 app.register_blueprint(EP_Auth, url_prefix="/")
 app.register_blueprint(EP_Order, url_prefix="/")
+app.register_blueprint(EP_Reset, url_prefix="/")
 app.register_blueprint(EP_Admin_Frontpage, url_prefix="/admin")
 app.register_blueprint(EP_Admin_Product, url_prefix="/admin")
 app.register_blueprint(EP_Admin_User, url_prefix="/admin")

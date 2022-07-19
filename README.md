@@ -12,11 +12,10 @@ Setting up production environment:
 ```
 python -m venv .venv (for windows) / python3 -m venv .venv (for macOS)
 .venv\scripts\activate (for Windows) / source .venv/bin/activate (for macOS)
+pip install -r requirements.txt
 python run.py
 ```
 Setting up MySQL DB:
 1. open sql script in mysql workbench
 2. create a database schema named 'secprj'
 3. ctrl + shift + enter to run the script
-
-[OWASP Top 10 Vulnerabilities]: <https://owasp.org/www-project-top-ten/>

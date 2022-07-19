@@ -5,25 +5,42 @@
 {% block content %}
 {% from '_formHelper.html' import render_field %}
 <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
-<section style="background-color: #eee;">
+<section style="background-color: #eee; width: 100%;">
   <div class="d-flex justify-content-center container">
     <div class="border border-dark bg-light p-2">
       <h5>Setting up Google Authenticator for 2FA</h5>
       <ol>
         <li><strong>Download Google Authenticator on your mobile</strong>(<a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en&gl=US" target="_blank">PlayStore</a>/<a href="https://apps.apple.com/us/app/google-authenticator/id388497605" target="_blank">AppStore</a>)</li>
         <li><strong>Click the "+" button on the bottom right of the app and choose your preferred method</strong><br>
-          Setup Key method:<br>
-          Enter the secret key shown below and select Time-Based authentication before continuing aaaaaaaaaaaa<br>
-          Scan QR Code method:
+          <em><u>Setup Key method:</u></em><br>
+          Enter the secret key shown below and select Time-Based authentication before continuing<br>
+          <em><u>Scan QR Code method:</u></em>
           Scan the QR Code shown below
         </li>
       </ol>
       <div class="row">
-        <div class="col-lg-6 d-flex justify-content-center"><div id="qrcode-2"></div></div>
-        <div class="col-lg-6">
-          <label for="secret">Secret Token</label>
-          <input type="text" class="form-control" id="secret" value="{{ secret }}" readonly><button onclick="copySecret()"><i class="bi bi-clipboard"></i></button>
+        <div class="col-md-4 d-flex justify-content-center">
+          <div id="qrcode-2"></div></div>
+          <div class="col-lg-6">
+            <div class="d-flex align-items-center">
+            <label for="secret">Secret Token</label>
+            <input type="text" class="form-control" id="secret" value="{{ secret }}" readonly>
+            <button onclick="copySecret()"><i class="bi bi-clipboard"></i></button>
+          </div>
         </div>
+        <form method="POST">
+          {{ render_field(form.csrf_token,value=session['csrf_token'],class='form-control.d-none') }}
+          <div class="d-flex align-items-center m-2">
+            <label for="otp">Generated OTP:</label>
+            <div class="form-group m-2">
+              <input type="hidden" name="secret" value="{{ secret }}" required>
+              <input type="number" class="form-control" id="otp" name="otp" required>
+            </div>
+            <div class="text-center">
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
   </div>

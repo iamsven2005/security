@@ -1,10 +1,11 @@
+import re
 from flask import Blueprint, render_template, redirect, request, url_for, flash , Flask , Response , session, flash, send_file
 from flask_mail import Message
 from itsdangerous import SignatureExpired, URLSafeTimedSerializer
 from uuid import uuid4
-import os, pyotp
+import os, pyotp, base64
 from datetime import date, datetime, timedelta
-from app.forms import RegistrationForm, LoginForm
+from app.forms import RegistrationForm, LoginForm, TWOFAForm
 from app import bcrypt, mysql
 from app.utils import *
 from functools import wraps
@@ -14,6 +15,17 @@ endpoint = Blueprint("auth", __name__)
 @endpoint.route("/register", methods=["GET", "POST"])
 def register():
     form = RegistrationForm(request.form)
+    if request.method == "GET":
+        session['csrf_token'] = base64.b64encode(os.urandom(16))
+
+    if request.method == "POST" and form.validate():
+        print(form.csrf_token.data)
+        print(type(form.csrf_token.data))
+        print(session.get('csrf_token'))
+        if form.csrf_token.data != str(session.get('csrf_token')):
+            flash('CSRF PROTECTION', 'error')
+            return redirect(request.referrer)
+
     cursor = mysql.connection.cursor()
     if request.method == "POST" and form.validate():
         cursor.execute('SELECT * FROM user WHERE username = %s OR email = %s', (form.username.data, form.email.data,))
@@ -34,25 +46,35 @@ def register():
 def login():
     cursor = mysql.connection.cursor()
     form = LoginForm(request.form)
+    if request.method == "GET":
+        session['csrf_token'] = base64.b64encode(os.urandom(16))
+
+    if request.method == "POST" and form.validate():
+        print(form.csrf_token.data)
+        print(type(form.csrf_token.data))
+        print(session.get('csrf_token'))
+        if form.csrf_token.data != str(session.get('csrf_token')):
+            flash('CSRF PROTECTION', 'error')
+            return redirect(request.referrer)
+    
     if request.method == "POST" and form.validate():
         username = form.username.data
         password = form.password.data
         cursor.execute('SELECT * FROM user LEFT JOIN user_otp ON user.user_id = user_otp.user_id WHERE user.username = %s', (username,))
         account = cursor.fetchone()
-        print('this is account on line 43', (account))
-        user_hashpwd = account['password']
         if account:
-            if account['lockout_expiry'] != None:
-                lock = datetime.strptime(account['lockout_expiry'], '%Y-%m-%d %H:%M:%S.%f')
-                if datetime.now() >= lock:
-                    account['lockout_expiry'] = None
-                    cursor.execute('UPDATE user SET lockout_expiry = %s WHERE user_id = %s', (None, account['user_id'],))
-                    mysql.connection.commit()
-                    session['id'] = account['user_id']
-                    return redirect(url_for('base.home'))
-                else:
-                    return redirect(url_for('auth.acc_lockout'))
-            elif account and bcrypt.check_password_hash(user_hashpwd, password):
+            user_hashpwd = account['password']
+            if account and bcrypt.check_password_hash(user_hashpwd, password):
+                if account['lockout_expiry'] != None:
+                    lock = datetime.strptime(account['lockout_expiry'], '%Y-%m-%d %H:%M:%S.%f')
+                    if datetime.now() >= lock:
+                        account['lockout_expiry'] = None
+                        cursor.execute('UPDATE user SET lockout_expiry = %s WHERE user_id = %s', (None, account['user_id'],))
+                        mysql.connection.commit()
+                        session['id'] = account['user_id']
+                        return redirect(url_for('base.home'))
+                    else:
+                        return render_template('auth/lockout.html')
                 if account['role'] == 'admin':
                     print(account)
                     session['id'] = account['user_id']
@@ -70,7 +92,7 @@ def login():
                 if account['f_counter']+1 == 5:
                     cursor.execute('UPDATE user SET f_counter = %s, f_strike = %s, lockout_expiry = %s WHERE user_id = %s', (0, account['f_strike']+1, lockout(account['f_strike']+1),account['user_id'],))
                     mysql.connection.commit()
-                    return redirect(url_for('auth.acc_lockout'))
+                    return render_template("auth/lockout.html")
                 else:
                     cursor.execute('UPDATE user SET f_counter = %s WHERE user_id = %s', (account['f_counter']+1, account['user_id'],))
                     mysql.connection.commit()
@@ -84,17 +106,35 @@ def login():
 # 2FA page route
 @endpoint.route("/login/2fa", methods=['GET', 'POST'])
 def login_2fa():
+    form = TWOFAForm(request.form)
+    if request.method == "GET":
+        session['csrf_token'] = base64.b64encode(os.urandom(16))
+
+    if request.method == "POST" and form.validate():
+        print(form.csrf_token.data)
+        print(type(form.csrf_token.data))
+        print(session.get('csrf_token'))
+        if form.csrf_token.data != str(session.get('csrf_token')):
+            flash('CSRF PROTECTION', 'error')
+            return redirect(request.referrer)
     cursor = mysql.connection.cursor()
     cursor.execute('SELECT * FROM user LEFT JOIN user_otp ON user.user_id = user_otp.user_id WHERE user.user_id = %s', (session['id'],))
     account = cursor.fetchone()
     if account['lockout_expiry'] != None:
         session.pop('id', None)
-        return redirect(url_for('auth.acc_lockout'))
+        return render_template("auth/lockout.html")
     else:
-        if request.method == 'POST':
+        if request.method == "POST" and form.validate():
+            print(form.csrf_token.data)
+            print(type(form.csrf_token.data))
+            print(session.get('csrf_token'))
+            if form.csrf_token.data != str(session.get('csrf_token')):
+                flash('CSRF PROTECTION', 'error')
+                return redirect(request.referrer)
+        if request.method == 'POST' and form.validate():
             secret = account['secret']
             # getting OTP provided by user
-            otp = int(request.form.get("otp"))
+            otp = int(form.otp.data)
 
             # verifying submitted OTP with PyOTP
             if pyotp.TOTP(secret).verify(otp):
@@ -110,13 +150,13 @@ def login_2fa():
                 if account['f_counter']+1 == 5:
                     cursor.execute('UPDATE user SET f_counter = %s, f_strike = %s, lockout_expiry = %s WHERE user_id = %s', (0, account['f_strike']+1, lockout(account['f_strike']+1),account['user_id'],))
                     mysql.connection.commit()
-                    return redirect(url_for('auth.acc_lockout'))
+                    return render_template("auth/lockout.html")
                 else:
                     cursor.execute('UPDATE user SET f_counter = %s WHERE user_id = %s', (account['f_counter']+1, account['user_id'],))
                     mysql.connection.commit()
                     flash('Invalid username or password', category='error')
                     return redirect(request.referrer)
-    return render_template("auth/login_2fa.html")
+    return render_template("auth/login_2fa.html", form=form)
 
 
 @endpoint.route('/logout')
@@ -134,20 +174,36 @@ def profile():
     account = cursor.fetchone()
     return render_template('auth/profile2.html', user=account)
 
-@endpoint.route("/setup-authenticator", methods=['GET'])
+@endpoint.route("/setup-authenticator", methods=['GET', 'POST'])
 def setup():
-    secret = pyotp.random_base32()
-    cursor = mysql.connection.cursor()
-    cursor.execute('SELECT * FROM user_otp WHERE user_id = %s', (session['id'],))
-    account = cursor.fetchone()
-    if account is None:
-        cursor.execute('INSERT INTO user_otp (user_id, otp_id, secret) VALUES (%s, %s, %s)', (session['id'], 1, secret,)) #when user first set up authenicator
-        mysql.connection.commit()
-    else:
-        cursor.execute('UPDATE user_otp SET secret = %s WHERE user_id = %s AND otp_id = %s', (secret, session['id'], 1,)) #if user reset up their authenticator
-        mysql.connection.commit()
-    return render_template('auth/authenticator.html', username=session['username'], secret=secret)
+    form = TWOFAForm(request.form)
+    if request.method == "GET":
+        session['csrf_token'] = base64.b64encode(os.urandom(16))
 
-@endpoint.route("/account-lockout")
-def acc_lockout():
-    return render_template("auth/lockout.html")
+    if request.method == "POST" and form.validate():
+        print(form.csrf_token.data)
+        print(type(form.csrf_token.data))
+        print(session.get('csrf_token'))
+        if form.csrf_token.data != str(session.get('csrf_token')):
+            flash('CSRF PROTECTION', 'error')
+            return redirect(request.referrer)
+    if request.method == 'GET':
+        secret = pyotp.random_base32()
+    if request.method == 'POST':
+        secret = request.form.get("secret")
+        otp = int(request.form.get("otp"))
+        if pyotp.TOTP(secret).verify(otp):
+            cursor = mysql.connection.cursor()
+            cursor.execute('SELECT * FROM user_otp WHERE user_id = %s', (session['id'],))
+            account = cursor.fetchone()
+            if account is None:
+                cursor.execute('INSERT INTO user_otp (user_id, otp_id, secret) VALUES (%s, %s, %s)', (session['id'], 1, secret,)) #when user first set up authenicator
+            else:
+                cursor.execute('UPDATE user_otp SET secret = %s WHERE user_id = %s AND otp_id = %s', (secret, session['id'], 1,)) #if user reset up their authenticator
+            mysql.connection.commit()
+            flash('2FA has been enabled!', 'success')
+            return redirect(url_for('auth.profile'))
+        else:
+            flash('Invalid OTP', 'danger')
+            return redirect(request.referrer)
+    return render_template('auth/authenticator.html', username=session['username'], secret=secret, form=form)

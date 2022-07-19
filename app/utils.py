@@ -4,6 +4,9 @@ from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from functools import wraps
+from itsdangerous import URLSafeTimedSerializer
+
+s = URLSafeTimedSerializer('secret_key1234')
 
 def is_loggedin(f):
 	@wraps(f)
@@ -40,6 +43,48 @@ def send_email(email):
     msg['To'] = receiver_email
 
     text='test'
+
+    body_text = MIMEText(text, 'plain')  # setting it to plaintext (option available: html, files)
+    msg.attach(body_text)  # attaching the text body into msg
+
+    context = ssl.create_default_context()
+    # Try to log in to server and send email
+    try:
+        server = smtplib.SMTP(smtp_server, port)
+        server.ehlo()  # check connection
+        server.starttls(context=context)  # Secure the connection
+        server.ehlo()  # check connection
+        server.login(sender_email, password)
+
+        # Send email here
+        server.sendmail(sender_email, receiver_email, msg.as_string())
+
+    except Exception as e:
+        # Print any error messages to stdout
+        print(e)
+    finally:
+        server.quit()
+
+
+def get_reset_token(email):
+    token = s.dumps(email, salt='reset-pw')
+    return token
+
+def send_reset_email(email):
+    smtp_server = os.getenv('MAIL_SERVER')
+    port = os.getenv('MAIL_PORT')  # For starttls port
+    sender_email = os.getenv('MAIL_USERNAME')
+    password = os.getenv('MAIL_PASSWORD')
+    receiver_email = email
+
+    msg = MIMEMultipart()
+    msg["Subject"] = 'Forget Password'
+    msg["From"] = sender_email
+    msg['To'] = receiver_email
+
+    token = get_reset_token(email)
+    link = url_for('reset.reset_token', token=token, _external=True)
+    text = f'Your link is {link}. This link will expire in 1 hour. If you did not request to reset pw, please ignore this email.'
 
     body_text = MIMEText(text, 'plain')  # setting it to plaintext (option available: html, files)
     msg.attach(body_text)  # attaching the text body into msg
