@@ -1,46 +1,133 @@
 import re
-from flask import Blueprint, render_template, redirect, request, url_for, flash , Flask , Response , session, flash, send_file
+import json
+import time
+import MySQLdb.cursors
+from flask import current_app
+from flask import Blueprint, render_template, redirect, request, url_for, flash , Flask , Response , session, flash, send_file , abort
 from flask_mail import Message
 from itsdangerous import SignatureExpired, URLSafeTimedSerializer
 from uuid import uuid4
 import os, pyotp, base64
 from datetime import date, datetime, timedelta
 from app.forms import RegistrationForm, LoginForm, TWOFAForm
+from app.forms import RegistrationForm, LoginForm , RegistrationForm2
 from app import bcrypt, mysql
 from app.utils import *
+from flask import current_app
 from functools import wraps
+from app import recaptcha , app , MySQL
+from uuid import uuid4
 
 endpoint = Blueprint("auth", __name__)
 
+
+
 @endpoint.route("/register", methods=["GET", "POST"])
 def register():
+    popup = False
+    emaildata = None
+    Emailexist = None
     form = RegistrationForm(request.form)
     if request.method == "GET":
         session['csrf_token'] = base64.b64encode(os.urandom(16))
 
-    if request.method == "POST" and form.validate():
-        print(form.csrf_token.data)
-        print(type(form.csrf_token.data))
-        print(session.get('csrf_token'))
-        if form.csrf_token.data != str(session.get('csrf_token')):
-            flash('CSRF PROTECTION', 'error')
-            return redirect(request.referrer)
 
-    cursor = mysql.connection.cursor()
     if request.method == "POST" and form.validate():
-        cursor.execute('SELECT * FROM user WHERE username = %s OR email = %s', (form.username.data, form.email.data,))
-        account = cursor.fetchone()
-        print(account)
-        if account is None:
-            hashpwd = bcrypt.generate_password_hash(form.password.data)
-            cursor.execute('INSERT INTO user (user_id, username, password, email, role) VALUES (%s, %s, %s, %s, %s)', (str(uuid4())[:8], form.username.data, hashpwd, form.email.data, 'customer'))
-            mysql.connection.commit()
-            flash('Registration Successfully! Please login before continuing.', category='success')
-        else:
-            flash('Login credentials already in used.', category='error')
-            return redirect(request.referrer)
-        return redirect(url_for('base.home'))
-    return render_template('auth/register.html', form=form)
+        if recaptcha.verify():
+            print(form.csrf_token.data)
+            print(type(form.csrf_token.data))
+            print(session.get('csrf_token'))
+            if form.csrf_token.data != str(session.get('csrf_token')):
+                flash('CSRF PROTECTION', 'error')
+                return redirect(request.referrer)
+            emaildata = form.email.data
+            cursor = mysql.connection.cursor()
+            cursor.execute('Select email FROM user WHERE email = %(email)s' , {'email' : emaildata})
+            checkemail = cursor.fetchone()
+            print(checkemail)
+            if checkemail ==None:
+                print('usernamedoesnotexist')
+                cursor.execute("DROP TABLE IF EXISTS TempUser")
+                cursor.execute("""CREATE TABLE TempUser ( 
+                             user_id varchar(8),
+                             username varchar(45),
+                             password varchar(255),
+                             email varchar(45),
+                             role varchar(45),
+                             status varchar(45)
+                            ) """)
+                cursor.execute('INSERT INTO TempUser Values (%s,%s,%s,%s,%s,%s)' , (None , None , None , emaildata , 'user' , 'pending'))
+                mysql.connection.commit()
+                token = s.dumps(form.email.data , salt='email-confirm-key')
+                token_url = url_for('auth.confirm_email', token=token , emaildata=emaildata , _external=True,)
+                email_subject = "Account Email Verification"
+                email_html =  render_template('/Email/EmailVerification.html' , token_url = token_url)
+                send_email(form.email.data , email_subject , email_html)
+                popup = True
+
+            else:
+                Emailexist = True
+
+
+
+    return render_template('auth/register.html', form=form , _external=True , popup=popup , emaildata = emaildata , Emailexist = Emailexist)
+
+
+@endpoint.route("/register2/<emaildata>", methods=["GET", "POST"])
+def register2(emaildata):
+    form = RegistrationForm2(request.form)
+    if request.method == "POST" and form.validate():
+        hashpwd = bcrypt.generate_password_hash(form.password.data)
+        cursor = mysql.connection.cursor()
+        cursor.execute("UPDATE TempUser SET user_id = %s , username = %s , password = %s WHERE email =%s" , (str(uuid4())[:8] , form.username.data , hashpwd, emaildata))
+        cursor.execute("ALTER TABLE TempUser DROP status")
+        cursor.execute("INSERT INTO user (user_id , username , password , email , role) SELECT * FROM TempUser")
+        cursor.execute("DROP TABLE TempUser")
+        mysql.connection.commit()
+        return redirect(url_for('auth.login'))
+
+    return render_template('auth/CompleteRegister.html' , form=form)
+
+
+@endpoint.route("/confirm_email/<token>/<emaildata>")
+def confirm_email(token , emaildata):
+    try:
+        cursor = mysql.connection.cursor()
+        email = s.loads(token, salt="email-confirm-key", max_age=60)
+        cursor.execute('UPDATE TempUser SET status = %s WHERE email = %s' , ('verified' , emaildata))
+        mysql.connection.commit()
+        print('confirm email ok')
+    except SignatureExpired:
+        abort(404)
+
+    return render_template('auth/EmailVerified.html')
+
+
+@endpoint.route('/awaitingsql/<emaildata>')
+def awaitingsql(emaildata):
+    def generator():
+        mysql.connection.commit()
+        cursor = mysql.connection.cursor()
+        cursor.execute('Select status FROM TempUser WHERE email = %(email)s' , {'email' : emaildata})
+        while True:
+            status = cursor.fetchone()
+            value = status.get('status')
+            jsondata = json.dumps({'status' : value})
+            print('verified')
+            print(value)
+            print('generator works')
+            time.sleep(1)
+            return f"data:{jsondata}\n\n"
+
+
+    return Response(generator() , mimetype='text/event-stream')
+
+
+@endpoint.route("/test")
+def test():
+
+    return render_template('common/test.html')
+
 
 @endpoint.route("/login", methods=["GET", "POST"])
 def login():
@@ -207,3 +294,8 @@ def setup():
             flash('Invalid OTP', 'danger')
             return redirect(request.referrer)
     return render_template('auth/authenticator.html', username=session['username'], secret=secret, form=form)
+
+@endpoint.route("/account-lockout")
+def acc_lockout():
+    return render_template("auth/lockout.html")
+

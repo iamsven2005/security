@@ -7,6 +7,8 @@ from flask_mysqldb import MySQL
 from datetime import timedelta
 import os
 from dotenv import load_dotenv
+from flask_recaptcha import ReCaptcha
+from markupsafe import Markup
 # from healthcheck_ep import hash_ep
 
 load_dotenv()
@@ -35,6 +37,18 @@ limiter = Limiter(
     default_limits=["200 per day", "5 per seconds"]
 )
 
+
+#RECAPTCHA
+
+app.config['RECAPTCHA_ENABLED'] = True
+app.config['RECAPTCHA_PUBLIC_KEY'] = "6LfCX_EgAAAAAJUgvFM1q0CUCd7rpczzYHsoE6vJ"
+app.config['RECAPTCHA_PRIVATE_KEY'] = '6LfCX_EgAAAAAJB_BLVtbqU3HtTwBbfr-7L72c_N'
+
+
+recaptcha = ReCaptcha()
+recaptcha.init_app(app)
+
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('error/404.html')
@@ -42,6 +56,8 @@ def page_not_found(e):
 @app.errorhandler(429)
 def ratelimit_handler(e):
     return render_template('error/429.html')
+
+
 
 from app.routes.common_ep import endpoint as EP_Common
 from app.routes.auth_ep import endpoint as EP_Auth
@@ -58,3 +74,4 @@ app.register_blueprint(EP_Reset, url_prefix="/")
 app.register_blueprint(EP_Admin_Frontpage, url_prefix="/admin")
 app.register_blueprint(EP_Admin_Product, url_prefix="/admin")
 app.register_blueprint(EP_Admin_User, url_prefix="/admin")
+

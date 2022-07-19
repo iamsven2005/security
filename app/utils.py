@@ -4,7 +4,9 @@ from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from functools import wraps
-from itsdangerous import URLSafeTimedSerializer
+from itsdangerous import SignatureExpired, URLSafeTimedSerializer
+import math
+
 
 s = URLSafeTimedSerializer('secret_key1234')
 
@@ -30,21 +32,20 @@ def lockout(f_strike):
     return final_time_str
 
 
-def send_email(email):
+def send_email(receipient , subject , content):
     smtp_server = os.getenv('MAIL_SERVER')
     port = os.getenv('MAIL_PORT')  # For starttls port
     sender_email = os.getenv('MAIL_USERNAME')
     password = os.getenv('MAIL_PASSWORD')
-    receiver_email = email
+    receiver_email = receipient
     
     msg = MIMEMultipart()
-    msg["Subject"] = "Testing"
+    msg["Subject"] = subject
     msg["From"] = sender_email
     msg['To'] = receiver_email
 
-    text='test'
 
-    body_text = MIMEText(text, 'plain')  # setting it to plaintext (option available: html, files)
+    body_text = MIMEText(content, 'html')  # setting it to plaintext (option available: html, files)
     msg.attach(body_text)  # attaching the text body into msg
 
     context = ssl.create_default_context()
@@ -64,6 +65,7 @@ def send_email(email):
         print(e)
     finally:
         server.quit()
+
 
 
 def get_reset_token(email):

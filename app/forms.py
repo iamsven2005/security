@@ -1,29 +1,31 @@
+
 from email import message
 from email.mime import base
 from wtforms import Form, StringField, DateField, PasswordField, IntegerField, DecimalField, validators, HiddenField, SubmitField
+from wtforms import Form, StringField, DateField, PasswordField, IntegerField, DecimalField, validators , ValidationError
 from flask_wtf.file import FileField, FileAllowed, FileRequired
+from flask_wtf import RecaptchaField
+
+def useremailvalidator(form , field):
+    if 'admin.com' in field.data:
+        raise ValidationError('Invalid Email Address')
 
 
 class baseform(Form):
     csrf_token = HiddenField()
 
 class RegistrationForm(baseform):
-    username = StringField("Username", [validators.Length(min=4, max=25)])
-    email = StringField(
-        "Email Address", [validators.Length(min=6, max=35), validators.Email()]
-    )
-    dob = DateField("Date Of Birth", format="%Y-%m-%d")
-    password = PasswordField(
-        "New Password",
-        [
-            validators.DataRequired(),
-            validators.EqualTo("confirm", message="Passwords must match"),
-            validators.length(
-                min=8, max=32, message="Password must be at least 8 characters"
-            ),
-        ],
-    )
-    confirm = PasswordField("Repeat Password")
+    email = StringField("Email Address", [validators.Length(min=6, max=35), validators.Email() , useremailvalidator])
+    confirmemail = StringField("Confirm Email Address", [validators.Length(min=6, max=35), validators.Email() , validators.EqualTo('email' , message='Email must match')])
+    recaptcha = RecaptchaField()
+
+
+class RegistrationForm2(baseform):
+    username = StringField('Username'  , [validators.Length(min=1, max=150), validators.DataRequired()])
+    password = PasswordField("Password" , [validators.length(min=8 , message="Please enter a stronger password") , validators.DataRequired() , validators.Regexp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$" , message="Weak Password") ])
+    confirmpassword = PasswordField("Confirm Password", [validators.length(min=8) , validators.EqualTo('password' , message='Password must match')])
+
+
 
 class LoginForm(baseform):
     username = StringField("Username", [validators.Length(min=4, max=25)])

@@ -1,0 +1,49 @@
+.form-popup {
+  display: none;
+  align-items: center;
+  position: absolute;
+  top: 10%;
+  left: 40%;
+  border: 3px solid black;
+  z-index: 999;
+  background-color:white;
+  width:900px;
+  height:600px;
+}
+
+
+.loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.blur{
+    position:absolute;
+    top:0;left:0;right:0;bottom:0;
+    display:none;
+    filter: blur(5px);
+    -webkit-filter: blur(5px);
+    -moz-filter: blur(5px);
+    -o-filter: blur(5px);
+    -ms-filter: blur(5px);
+}
+
+
+#Emailexist{
+    display:none;
+}

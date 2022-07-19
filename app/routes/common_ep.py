@@ -5,14 +5,20 @@ from app import app, bcrypt, mysql
 from app.utils import *
 import json
 from ast import literal_eval
+import subprocess
+from user_agents import parse
 
 endpoint = Blueprint("base", __name__)
+
 
 @endpoint.route("/")
 def home():
     cursor = mysql.connection.cursor()
     cursor.execute('SELECT * FROM product')
     products = cursor.fetchall()
+    x = request.headers.get('User-Agent')
+    useragent = parse(x)
+    print(useragent.os.family)
     return render_template('common/index.html',
                             products_active_keys = products[:4],
                             products_other_keys = products[5:8])
