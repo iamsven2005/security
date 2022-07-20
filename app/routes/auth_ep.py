@@ -9,7 +9,7 @@ from itsdangerous import SignatureExpired, URLSafeTimedSerializer
 from uuid import uuid4
 import os, pyotp, base64
 from datetime import date, datetime, timedelta
-from app.forms import RegistrationForm, LoginForm, TWOFAForm
+from app.forms import RegistrationForm, LoginForm, TWOFAForm, CreditForm
 from app.forms import RegistrationForm, LoginForm , RegistrationForm2
 from app import bcrypt, mysql
 from app.utils import *
@@ -53,10 +53,10 @@ def register():
                              username varchar(45),
                              password varchar(255),
                              email varchar(45),
-                             role varchar(45),
-                             status varchar(45)
+                             status varchar(45),
+                             vstatus varchar(45)
                             ) """)
-                cursor.execute('INSERT INTO TempUser Values (%s,%s,%s,%s,%s,%s)' , (None , None , None , emaildata , 'user' , 'pending'))
+                cursor.execute('INSERT INTO TempUser Values (%s,%s,%s,%s,%s,%s)' , (None , None , None , emaildata , 'customer' , 'pending'))
                 mysql.connection.commit()
                 token = s.dumps(form.email.data , salt='email-confirm-key')
                 token_url = url_for('auth.confirm_email', token=token , emaildata=emaildata , _external=True,)
@@ -76,12 +76,22 @@ def register():
 @endpoint.route("/register2/<emaildata>", methods=["GET", "POST"])
 def register2(emaildata):
     form = RegistrationForm2(request.form)
+    if request.method == "GET":
+        session['csrf_token'] = base64.b64encode(os.urandom(16))
+
+    
     if request.method == "POST" and form.validate():
+        print(form.csrf_token.data)
+        print(type(form.csrf_token.data))
+        print(session.get('csrf_token'))
+        if form.csrf_token.data != str(session.get('csrf_token')):
+            flash('CSRF PROTECTION', 'error')
+            return redirect(request.referrer)
         hashpwd = bcrypt.generate_password_hash(form.password.data)
         cursor = mysql.connection.cursor()
         cursor.execute("UPDATE TempUser SET user_id = %s , username = %s , password = %s WHERE email =%s" , (str(uuid4())[:8] , form.username.data , hashpwd, emaildata))
-        cursor.execute("ALTER TABLE TempUser DROP status")
-        cursor.execute("INSERT INTO user (user_id , username , password , email , role) SELECT * FROM TempUser")
+        cursor.execute("ALTER TABLE TempUser DROP vstatus")
+        cursor.execute("INSERT INTO user (user_id , username , password , email , status) SELECT * FROM TempUser")
         cursor.execute("DROP TABLE TempUser")
         mysql.connection.commit()
         return redirect(url_for('auth.login'))
@@ -94,7 +104,7 @@ def confirm_email(token , emaildata):
     try:
         cursor = mysql.connection.cursor()
         email = s.loads(token, salt="email-confirm-key", max_age=60)
-        cursor.execute('UPDATE TempUser SET status = %s WHERE email = %s' , ('verified' , emaildata))
+        cursor.execute('UPDATE TempUser SET vstatus = %s WHERE email = %s' , ('verified' , emaildata))
         mysql.connection.commit()
         print('confirm email ok')
     except SignatureExpired:
@@ -108,10 +118,10 @@ def awaitingsql(emaildata):
     def generator():
         mysql.connection.commit()
         cursor = mysql.connection.cursor()
-        cursor.execute('Select status FROM TempUser WHERE email = %(email)s' , {'email' : emaildata})
+        cursor.execute('Select vstatus FROM TempUser WHERE email = %(email)s' , {'email' : emaildata})
         while True:
             status = cursor.fetchone()
-            value = status.get('status')
+            value = status.get('vstatus')
             jsondata = json.dumps({'status' : value})
             print('verified')
             print(value)
@@ -162,10 +172,16 @@ def login():
                         return redirect(url_for('base.home'))
                     else:
                         return render_template('auth/lockout.html')
-                if account['role'] == 'admin':
-                    print(account)
+                if account['status'] == 'admin':
                     session['id'] = account['user_id']
-                    return redirect(url_for('admin.frontpage'))
+                    if account['role'] == 'admin':
+                        return redirect(url_for('admin.frontpage'))
+                    elif account['role'] == 'card':
+                        print("ok")
+                        return render_template('admin/cards.html')
+                    elif account['role'] == 'user':
+                        print("ok")
+                        return render_template('admin/user.html')
                 else:
                     session['id'] = account['user_id']
                     session['username'] = account['username']
@@ -299,3 +315,43 @@ def setup():
 def acc_lockout():
     return render_template("auth/lockout.html")
 
+@endpoint.route("/addcard", methods=["GET", "POST"])
+def addcard():
+    form = CreditForm(request.form)
+    card_id = str(uuid4())[:5]
+    if request.method == 'POST' and form.validate():
+        cursor = mysql.connection.cursor()
+        cursor.execute('SELECT cc_id FROM credit_card WHERE cc_id = %s', [id])
+        credit = cursor.fetchone()
+        if credit is None:
+            try:
+                hashcc = bcrypt.generate_password_hash(form.card_number.data)
+                cursor.execute('INSERT INTO credit_card(cc_id, cvv, exp_mm,exp_yy, cc_username,user_id, card_id,en_cc_id) '
+                               'VALUES (%s,%s,%s,%s,%s,%s,%s,%s)', (form.card_number.data, form.cvv.data,
+                                form.exp_mm.data, form.exp_yy.data,form.creditName.data,
+                                   session['id'],card_id,hashcc))
+                print((hashcc))
+                mysql.connection.commit()
+                flash("Card has been added")
+            except:
+                flash("This card has already been used cannot be added")
+                print("cannot")
+
+        return redirect(url_for('auth.credit_card'))
+    return render_template('/auth/credit_form.html', form=form)
+
+@endpoint.route("/payment", methods=["GET", "POST"])
+def credit_card():
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT * From credit_card')
+    creditt = cursor.fetchall()
+    return render_template('auth/credit.html', creditt=creditt)
+
+
+
+@endpoint.route('/deletecc/<id>', methods=['POST'])
+def deletecc(id):
+    cursor = mysql.connection.cursor()
+    cursor.execute('DELETE FROM credit_card WHERE card_id = %s', [id])
+    cursor.connection.commit()
+    return redirect(request.referrer)

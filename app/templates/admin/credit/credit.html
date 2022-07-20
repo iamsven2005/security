@@ -1,0 +1,25 @@
+{% extends 'layouts/admin_base.html' %}
+
+{% block content %}
+
+<table class="table table-striped" id="datatablesSimple">
+
+    <thead>
+      <tr>
+        <th>User ID</th>
+        <th>Credit Card Details</th>
+        <th>Card ID</th>
+      </tr>
+
+    </thead>
+    <tbody>
+    {% for credit in credits %}
+    <tr>
+        <td>{{ credit.user_id }}</td>
+        <td>{{ credit.cc_id }}</td>
+        <td>{{ credit.card_id }}</td>
+    </tr>
+    {% endfor %}
+    </table>
+
+{% endblock content %}

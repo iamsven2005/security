@@ -1,0 +1,33 @@
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/payment.css') }}">
+<div class="scene">
+        <!-- Card -->
+        <div class="card">
+          <form method="POST" enctype="multipart/form-data">
+          <!-- Card front -->
+          <div class="card__front">
+            <img src="./images/visa-logo.svg" class="card__logo" />
+            <div class="card__number number">
+              {{ render_field(form.card_number, class="form-control card-number-input", id="card-number") }}
+            </div>
+            <div class="card__details">
+              <div class="card__holder">
+                {{ render_field(form.creditName, class="form-control card-holder-input") }}
+              </div>
+              <div class="card__expiration">
+                {{ render_field(form.exp_mm, class="form-check month-input" , style="list-style-type: none")}}
+                {{ render_field(form.exp_yy, class="form-check year-input" , style="list-style-type: none") }}
+              </div>
+            </div>
+          </div>
+          <!-- Card back -->
+          <div class="card__back">
+            <div class="card__stripe"></div>
+            <div class="card__signature">
+              {{ render_field(form.cvv, class="form-control cvv-input" , maxlength="4") }}
+            </div>
+
+          </div>
+          </form>
+        </div>
+      </div>
+<script src="/static/scripts//script.js"></script>

@@ -1,0 +1,178 @@
+{% extends 'layouts/base.html' %}
+{% block title %}
+{% endblock title %}
+{% block content %}
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/mainpage.css') }}">
+<div class="col-lg-3">
+        <!-- Sidebar-->
+        <div class="border-end bg-white" id="sidebar-wrapper">
+            <div class="list-group list-group-flush">
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Dashboard</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Shortcuts</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Overview</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Events</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Profile</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Status</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/payment">Payment</a>
+            </div>
+        </div>
+    </div>
+<div class = "my-account">
+        <div class = "my-account-header">
+            <div class = "my-account-header-title">
+                Credit / Debit Card
+            </div>
+            <button class="button_move" onclick="openForm()">
+                <span class="button-with-icon">
+                    <span class="button-with-icon-icon">
+                        <svg enable-background="new 0 0 10 10" viewBox="0 0 10 10" x="0" y="0" class="shopee-svg-icon icon-plus-sign"><polygon points="10 4.5 5.5 4.5 5.5 0 4.5 0 4.5 4.5 0 4.5 0 5.5 4.5 5.5 4.5 10 5.5 10 5.5 5.5 10 5.5"></polygon></svg>
+                        <polygon points="10 4.5 5.5 4.5 5.5 0 4.5 0 4.5 4.5 0 4.5 0 5.5 4.5 5.5 4.5 10 5.5 10 5.5 5.5 10 5.5"></polygon>
+                    </span>
+                </span>
+                <span>
+                    <a href="/addcard" style="text-decoration-line:none;color:white;">Add New Card</a>
+                </span>
+
+            </button>
+        </div>
+        <div class = "credit_info">
+
+                {% if creditt|length > 0  %}
+                    {% for credit in creditt %}
+                        {% if session['id'] == credit.user_id %}
+                            <div class="card-body p-4">
+                                <div class="text-center">
+                                    <!-- Product name-->
+
+                                    <h5 id= "cc_id" class="fw-bolder">{{ credit.en_cc_id }}</h5>
+                                    <!-- Product price-->
+                                    {{ credit.cvv }}
+
+                                <form action="{{url_for('auth.deletecc', id=credit.card_id)}}" method="POST">
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal">
+                                data-bs-target="#myModal_{{credit.card_id}}"><i class="bi bi-trash"></i></button>
+                            <div class="modal" id="myModal_{{credit.card_id}}">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Confirm Delete?</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to delete Credit Card {{credit.card_id}}?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <input type="submit" value="Delete" class="btn btn-danger">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        </div>
+                            </div>
+
+
+                {% else %}
+
+                        {% endif %}
+                    {% endfor %}
+
+                {% endif %}
+
+        </div>
+</div>
+
+<script>
+    function multiply(str,num){
+        for ( var int = 0; int < length; int++) {
+         str += str;
+        }
+        return str
+    }
+const cc_id = $('#cc_id');
+const textToReplace = cc_id.text();
+const masking = multiply('•',textToReplace.length)
+const maskText = textToReplace.replaceAll(textToReplace, '•'.repeat(16));
+cc_id.text(maskText);
+
+
+function openForm() {
+  document.getElementById("myForm").style.display = "block";
+}
+
+function closeForm() {
+  document.getElementById("myForm").style.display = "none";
+}
+function formatCardNumber(event, element) {
+	if (isNaN(event.key) && !isAllowedKey(event)) {
+		event.preventDefault();
+	} else {
+		if (event.keyCode != 8) {
+			if(element.value.length > 14) {
+				var position = element.selectionStart;
+				element.value = element.value.replace(/\W/gi, '').replace(/^(.{4})(.{4})(.{4})(.*)$/, "$1 $2 $3 $4");
+				if(element.value.length != 19) {
+					element.setSelectionRange(position, position);
+				}
+			}
+			else {
+				element.value = element.value.replace(/\W/gi, '').replace(/(.{4})/g, '$1 ');
+			}
+		}
+	}
+}
+
+function isAllowedKey(event) {
+	var allowed = false;
+	if (event.keyCode === 8 || event.keyCode === 9 || event.keyCode === 37 || event.keyCode === 39) {
+		allowed = true;
+	}
+	return allowed;
+}
+
+function limit(event, element, max_chars) {
+	if(isTextSelected(element)){																		//
+		max_chars += 1;
+	}
+	if (element.value.length >= max_chars && !isAllowedKey(event)) {
+		event.preventDefault();
+	}
+}
+
+function showCardValue() {
+	document.getElementById("cardNo").value = document.getElementById("cardNoSafe").value;
+}
+
+function isTextSelected(input) {
+	var startPosition = input.selectionStart;
+	var endPosition = input.selectionEnd;
+
+	var selObj = document.getSelection();
+	var selectedText = selObj.toString();
+
+	if (selectedText.length != 0) {
+		input.focus();
+		input.setSelectionRange(startPosition, endPosition);
+		return true;
+	} else if (input.value.substring(startPosition, endPosition).length != 0) {
+		input.focus();
+		input.setSelectionRange(startPosition, endPosition);
+		return true;
+	}
+	return false;
+}
+
+function hideCardValue(val) {
+	document.getElementById("cardNoSafe").value = val;
+	var len = val.length;
+	if (len >= 14) {
+		const regex = /\d{4}(?= \d{1})/g;
+		const substr = "****";
+		document.getElementById("cardNo").value = val.replace(regex, substr);
+	}
+}
+</script>
+{% endblock content %}

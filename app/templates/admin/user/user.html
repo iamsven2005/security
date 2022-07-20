@@ -1,0 +1,28 @@
+{% extends 'layouts/admin_base.html' %}
+
+{% block content %}
+
+<table class="table table-striped" id="datatablesSimple">
+
+    <thead>
+      <tr>
+        <th>User ID</th>
+        <th>Username</th>
+        <th>Status</th>
+      </tr>
+
+    </thead>
+    <tbody>
+    {% for user in users %}
+        {% if user.status == "customer"%}
+    <tr>
+        <td>{{ user.user_id }}</td>
+        <td>{{ user.username }}</td>
+        <td>{{ user.status }}</td>
+        <td><a href="/admin/updateAdmin/{{user.user_id}}" class="btn btn-warning" id=user.user_id)>Update</a></td>
+    </tr>
+        {% endif %}
+    {% endfor %}
+    </table>
+
+{% endblock content %}

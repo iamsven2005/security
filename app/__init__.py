@@ -66,6 +66,8 @@ from app.routes.reset_ep import endpoint as EP_Reset
 from app.routes.admin.frontpage_ep import endpoint as EP_Admin_Frontpage
 from app.routes.admin.product_ep import endpoint as EP_Admin_Product
 from app.routes.admin.user_ep import endpoint as EP_Admin_User
+from app.routes.admin.card_ep import endpoint as EP_Admin_Card
+from app.routes.admin.admin_ep import endpoint as EP_Admin_Admin
 
 app.register_blueprint(EP_Common, url_prefix="/")
 app.register_blueprint(EP_Auth, url_prefix="/")
@@ -74,4 +76,6 @@ app.register_blueprint(EP_Reset, url_prefix="/")
 app.register_blueprint(EP_Admin_Frontpage, url_prefix="/admin")
 app.register_blueprint(EP_Admin_Product, url_prefix="/admin")
 app.register_blueprint(EP_Admin_User, url_prefix="/admin")
+app.register_blueprint(EP_Admin_Card, url_prefix="/admin")
+app.register_blueprint(EP_Admin_Admin, url_prefix="/admin")
 

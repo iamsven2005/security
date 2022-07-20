@@ -1,0 +1,36 @@
+{% extends 'layouts/admin_base.html' %}
+{% block title %}
+Admin Frontpage
+{% endblock title %}
+{% block content %}
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/mainpage.css') }}">
+
+<a href="/admin/addAdmin">
+                <button class="btn btn-primary">
+                    + Add Admins
+                </button>
+            </a>
+<table class="table table-striped" id="datatablesSimple">
+
+    <thead>
+      <tr>
+        <th>User</th>
+      </tr>
+
+
+
+    </thead>
+    <tbody>
+    {% for admin in admins %}
+        {% if admin.status == 'admin' %}
+    <tr>
+
+        <td>{{ admin.username }}</td>
+        <td>{{ admin.role }}</td>
+        <td><a href="/admin/updateAdmin/{{admin.user_id}}" class="btn btn-warning" id=admin.user_id)>Update</a></td>
+    </tr>
+        {% endif %}
+    {% endfor %}
+    </table>
+
+{% endblock content %}

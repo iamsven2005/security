@@ -17,7 +17,6 @@ def reset_request():
         session['csrf_token'] = base64.b64encode(os.urandom(16))
 
     if request.method == "POST" and form.validate():
-        print(form.csrf_token.data)
         print(type(form.csrf_token.data))
         print(session.get('csrf_token'))
         if form.csrf_token.data != str(session.get('csrf_token')):

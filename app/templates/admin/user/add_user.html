@@ -1,0 +1,40 @@
+{% extends 'layouts/admin_users.html' %}
+{% block title %}
+{% endblock title %}
+{% block content %}
+{% from "_formHelper.html" import render_field %}
+<div class="card-body" style="margin:0 500px;">
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group col py-3">
+            {{ render_field(form.username, class="form-control") }}
+            </div>
+            <div class="form-group col py-3" type="password">
+                {{ render_field(form.password, class="form-control", id="password") }}
+                <input type="checkbox" onclick="myFunction()">Show Credit Card
+            </div>
+        <div class="flexbox">
+            <div class="form-group col py-3">
+                {{ render_field(form.email, class="form-control") }}
+            </div>
+            <div class="form-group col py-3">
+                {{ render_field(form.role, class="form-check", style="list-style-type:none") }}
+            </div>
+            <div class="form-group col py-3">
+                {{ render_field(form.status, class="form-check", style="list-style-type:none") }}
+            </div>
+        </div>
+
+              <input type="submit" value="Confirm" class="btn btn-success mt-2">
+          </form>
+        </div>
+<script>
+    function myFunction() {
+  var x = document.getElementById("password");
+  if (x.type === "password") {
+    x.type = "text";
+  } else {
+    x.type = "password";
+  }
+}
+</script>
+{% endblock content %}
