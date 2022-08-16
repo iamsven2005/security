@@ -1,0 +1,63 @@
+{% extends 'layouts/admin_base.html' %}
+{% block title %}
+Admin Frontpage
+{% endblock title %}
+{% block content %}
+
+<div id="diff">
+
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="card mb-4">
+        <div class="card-header">
+          Issues Occurred
+        </div>
+        <div class="card-body">
+          <table class="table table-bordered">
+            <tr>
+              <th>Endpoint Files</th>
+              <th>Unresolved Issues</th>
+            </tr>
+            <tbody id="myTable">
+              {% for key in notif %}
+              <tr>
+                <td><a href="/admin/report/catalog/?filter_by_folder={{key}}&filter_by_date=">{{ key }}</a></td>
+                <td>{{ notif[key] }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card mb-4">
+        <div class="card-header">
+          Archive
+        </div>
+        <div class="card-body">
+          <table class="table table-bordered">
+            <tr>
+              <th>Endpoint Files</th>
+              <th>Archived</th>
+            </tr>
+            <tbody id="myTable">
+              {% for key in archive %}
+              <tr>
+                <td><a href="/admin/archive/catalog/?filter_by_folder={{key}}&filter_by_date=">{{ key }}</a></td>
+                <td>{{ archive[key] }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+</div>
+
+{% endblock content %}

@@ -10,18 +10,19 @@
             </div>
             <div class="form-group col py-3" type="password">
                 {{ render_field(form.password, class="form-control", id="password") }}
-                <input type="checkbox" onclick="myFunction()">Show Credit Card
+                <input type="checkbox" onclick="myFunction()">Show Password
             </div>
         <div class="flexbox">
             <div class="form-group col py-3">
                 {{ render_field(form.email, class="form-control") }}
             </div>
             <div class="form-group col py-3">
-                {{ render_field(form.role, class="form-check", style="list-style-type:none") }}
-            </div>
-            <div class="form-group col py-3">
                 {{ render_field(form.status, class="form-check", style="list-style-type:none") }}
             </div>
+            <div class="form-group col py-3">
+                {{ render_field(form.role, class="form-check", style="list-style-type:none") }}
+            </div>
+
         </div>
 
               <input type="submit" value="Confirm" class="btn btn-success mt-2">

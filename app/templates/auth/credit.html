@@ -11,9 +11,10 @@
                 <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Shortcuts</a>
                 <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Overview</a>
                 <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Events</a>
-                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Profile</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/profile">Profile</a>
                 <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Status</a>
                 <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/payment">Payment</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/history">History</a>
             </div>
         </div>
     </div>
@@ -49,7 +50,7 @@
                                     {{ credit.cvv }}
 
                                 <form action="{{url_for('auth.deletecc', id=credit.card_id)}}" method="POST">
-                            <button type="button" class="btn btn-danger" data-bs-toggle="modal">
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal"
                                 data-bs-target="#myModal_{{credit.card_id}}"><i class="bi bi-trash"></i></button>
                             <div class="modal" id="myModal_{{credit.card_id}}">
                                 <div class="modal-dialog">
@@ -92,6 +93,7 @@
         }
         return str
     }
+
 const cc_id = $('#cc_id');
 const textToReplace = cc_id.text();
 const masking = multiply('•',textToReplace.length)

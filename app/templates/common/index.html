@@ -191,7 +191,24 @@ Home
     </tbody>
 </table>
 
-<script> console.log(document.cookie)</script>
+<script>
+    function getCookie(cookieName) {
+      let cookie = {};
+      document.cookie.split(';').forEach(function(el) {
+        let [key,value] = el.split('=');
+        cookie[key.trim()] = value;
+      })
+      return cookie[cookieName];
+    }
+
+    if (getCookie('ID') == null){
+    var expiration_date = new Date();
+    expiration_date.setFullYear(expiration_date.getFullYear() + 1);
+    document.cookie = "ID= {{ uuids }}; expires=expiration_date.toUTCString()"
+    console.log(document.cookie)
+    }
+
+</script>
 
 
 {% endblock content %}

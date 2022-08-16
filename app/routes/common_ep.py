@@ -5,23 +5,22 @@ from app import app, bcrypt, mysql
 from app.utils import *
 import json
 from ast import literal_eval
-import subprocess
-from user_agents import parse
-
 endpoint = Blueprint("base", __name__)
+import datetime
+import uuid
 
 
 @endpoint.route("/")
 def home():
     cursor = mysql.connection.cursor()
     cursor.execute('SELECT * FROM product')
+    uuids = uuid.uuid4().hex
     products = cursor.fetchall()
-    x = request.headers.get('User-Agent')
-    useragent = parse(x)
-    print(useragent.os.family)
+    print(session.get('loggedin'))
     return render_template('common/index.html',
                             products_active_keys = products[:4],
-                            products_other_keys = products[5:8])
+                            products_other_keys = products[5:8],
+                            uuids=uuids)
 
 @endpoint.route('/product_info/<id>')
 def product_info(id):
@@ -29,3 +28,18 @@ def product_info(id):
     cursor.execute('SELECT * FROM product WHERE product_id = %s', (id,))
     product = cursor.fetchone()
     return render_template('common/product_info.html', product=product)
+
+@endpoint.route('/updatefile/')
+def updatefile():
+    """args req"""
+    filename = request.args.get('filename', type=str, default="")
+    lines = request.args.get('lines', type=str, default="")
+    try:
+        if os.path.isfile(filename):
+            with open(filename, 'a+') as f:
+                if os.stat(filename).st_size > 0:
+                    f.write('\n')
+                f.write('###'+lines)
+    except:
+        print('error')
+    return redirect(url_for('base.home'))

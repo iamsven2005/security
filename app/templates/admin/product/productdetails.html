@@ -29,6 +29,7 @@ Onsite form
                 <img src="{{url_for('static', filename='media/product_img/' + product.product_id + '.png')}}"
                     class="card-img-top img-fluid" alt="product image" style="width: 320px; height: 180px;">
             </div>
+            <button><a href="/admin/deleteimg/?filepath={{url_for('static', filename='media/product_img/' + product.product_id + '.png')}}">Delete Image</a></button>
             <div class="card-body">
                 <table class="table table-sm">
                     <thead>

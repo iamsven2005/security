@@ -1,0 +1,61 @@
+{% extends 'layouts/base.html' %}
+{% block title %}
+{% endblock title %}
+{% block content %}
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/mainpage.css') }}">
+<div class="col-lg-3">
+        <!-- Sidebar-->
+        <div class="border-end bg-white" id="sidebar-wrapper">
+            <div class="list-group list-group-flush">
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Dashboard</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Shortcuts</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Overview</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Events</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/profile">Profile</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Status</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/payment">Payment</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/history">History</a>
+            </div>
+        </div>
+    </div>
+<div class = "my-account">
+        <div class = "my-account-header">
+            <div class = "my-account-header-title">
+                History / Logs
+            </div>
+            <button class="button_move" onclick="openForm()">
+                <span class="button-with-icon">
+                    <span class="button-with-icon-icon">
+                        <svg enable-background="new 0 0 10 10" viewBox="0 0 10 10" x="0" y="0" class="shopee-svg-icon icon-plus-sign"><polygon points="10 4.5 5.5 4.5 5.5 0 4.5 0 4.5 4.5 0 4.5 0 5.5 4.5 5.5 4.5 10 5.5 10 5.5 5.5 10 5.5"></polygon></svg>
+                        <polygon points="10 4.5 5.5 4.5 5.5 0 4.5 0 4.5 4.5 0 4.5 0 5.5 4.5 5.5 4.5 10 5.5 10 5.5 5.5 10 5.5"></polygon>
+                    </span>
+                </span>
+                <span>
+                    <a href="/download/report/pdf" style="text-decoration-line:none;color:white;">Generate Pdf Report</a>
+                </span>
+
+            </button>
+        </div>
+        <div class = "history_info" style="overflow: auto; text-align:justify;">
+            <table class="table">
+          {% for fl in activity %}
+
+          {%if fl.severity == 'good' %}
+                {% if session['id'] == fl.user_id %}
+
+              <td>{{fl.description}} at {{fl.timestamp}}</td>
+
+              {% endif %}
+
+
+
+          {%endif%}
+
+          </tr>
+          {%endfor%}
+        </table>
+        </div>
+</div>
+
+
+{% endblock content %}

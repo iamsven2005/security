@@ -28,9 +28,48 @@ Admin Frontpage
         <td>{{ admin.username }}</td>
         <td>{{ admin.role }}</td>
         <td><a href="/admin/updateAdmin/{{admin.user_id}}" class="btn btn-warning" id=admin.user_id)>Update</a></td>
+    <td><button class="btn btn-info activity">Activity</button></td>
     </tr>
         {% endif %}
+
+    <tr style="display: none;">
+      <td colspan="5">
+        <table class="table">
+          {% for fl in activity %}
+              {%if fl.severity == 'high'%}
+            <tr style="background-color: #ff8080;">
+                          {% if admin.user_id == fl.user_id %}
+
+              <td>{{fl.description}} at {{fl.timestamp}}</td>
+            {%endif%}
+
+
+              {%elif fl.severity == 'low' %}
+                <tr style="background-color: #e6ac00;">
+                  {% if admin.user_id == fl.user_id %}
+
+              <td>{{fl.description}} at {{fl.timestamp}}</td>
+
+            {%endif%}
+
+
+              {% endif %}
+          </tr>
+          {%endfor%}
+        </table>
+      </td>
+    </tr>
+
     {% endfor %}
     </table>
+
+    <script>
+      <!-- give buttons functionality to toggle to show user account activity -->
+        $('.activity').on('click', function(e) {
+          e.preventDefault();
+          var tr = $(this).parent().parent().next('tr');
+          tr.toggle(150);
+        })
+    </script>
 
 {% endblock content %}

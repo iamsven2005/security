@@ -1,0 +1,86 @@
+{% extends 'layouts/admin_base.html' %}
+{% block title %}
+Admin Frontpage
+{% endblock title %}
+{% block content %}
+
+<div id="diff">
+    <!-- LHS -->
+    <div class="col-lg-12">
+        <div class="card mb-4">
+            <div class="card-header">
+                <p style="font-size: 30px;"><strong><a href="/admin/report/catalog/?filter_by_folder={{folder}}&filter_by_date="><i class="fa fa-arrow-left"
+                                aria-hidden="true"></i></a>{{ file }}</strong></p>
+            </div>
+            {% if incident_list != 'Missing' %}
+            <div class="card-body">
+                <table class="table table-bordered" style="margin: 10px;">
+                    <tbody id="myTable">
+                        {% for key in incident_list %}
+                        <tr>
+                            <td colspan="3">{{ key }}</td>
+                        </tr>
+                        {% for line in incident_list[key] %}
+                        {% if line[0] == '' or line[1] == '' %}
+                        <tr>
+                            <td class="bg-primary text-white">{{ line[0] }}</td>
+                            <td class="bg-primary text-white">{{ line[1] }}</td>
+                            {% if line[2][0] == '+' %}
+                            <td class="bg-success text-white">{{ line[2] }}</td>
+                            {% else %}
+                            <td class="bg-danger text-white">{{ line[2] }}</td>
+                            {% endif %}
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td class="bg-secondary text-white">{{ line[0] }}</td>
+                            <td class="bg-secondary text-white">{{ line[1] }}</td>
+                            <td class="bg-secondary text-white">{{ line[2] }}</td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                        {% endfor %}
+
+                        <tr>
+                            <td>
+                                <div class="d-flex justify-content-start">
+                                    <p>Resolve:</p>
+                                   <form action="{{url_for('ids.archivefile', folder=folder, file=file)}}" folder="folder"
+                                    file="file" method="POST">
+                                    <button class="btn btn-success">Resolve</button>
+                                </form> 
+                                </div>
+                            </td>
+                            <td colspan="2">
+                                <div class="d-flex justify-content-start">
+                                    <p>Download Txt:</p>
+                                    <form action="{{url_for('ids.reportxt', folder=folder, file=file)}}" folder="folder"
+                                        file="file" method="POST">
+                                        <button class="btn btn-dark"><i class="fa fa-download"
+                                                aria-hidden="true"></i>Txt
+                                            File</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p>{{ folder }} has been deleted on {{ file }}</p>
+            <div class="d-flex justify-content-start">
+                <p>Resolve:</p>
+               <form action="{{url_for('ids.archivefile', folder=folder, file=file)}}" folder="folder"
+                file="file" method="POST">
+                <button class="btn btn-success">Resolve</button>
+            </form> 
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+
+
+</div>
+
+{% endblock content %}

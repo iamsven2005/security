@@ -7,6 +7,7 @@
 
 <div class="container">
     <div class="main-body">
+
         <div class="row gutters-sm">
             <div class="col-md-4 mb-3">
                 <div class="card">
@@ -17,7 +18,7 @@
                             <div class="mt-3">
                                 <h4>{{ user.username }}</h4>
                                 <p class="text-secondary mb-1">Full Stack Developer</p>
-                                <p class="text-muted font-size-sm">Bay Area, San Francisco, CA</p>
+                                <p class="text-muted font-size-sm">Bay 333Area, San Francisco, CA</p>
                                 <button class="btn btn-primary">Follow</button>
                                 <button class="btn btn-outline-primary">Message</button>
                             </div>
@@ -132,6 +133,38 @@
                             </div>
                         </div>
                         <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">Two-Factor Authenticator</h6>
+                            </div>
+                            {% if user.secret is none %}
+                            <div class="col-sm-9">
+                                <a href="/setup-authenticator"><button class="btn btn-secondary">Disabled</button></a>
+                            </div>
+                            {% else %}
+                            <div class="col-sm-9">
+                                <form action="{{url_for('auth.disable')}}" method="POST"><button class="btn btn-success">Enabled</button></form>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">Preferred Time</h6>
+                            </div>
+                            {% if user.Preferred is none %}
+                            <div class="col-sm-9">
+                                <form action="/preferred/{{user.user_id}}" method="POST"><button class="btn btn-secondary">Disabled</button></form>
+                            </div>
+                            {% else %}
+                            <div class="col-sm-9">
+                                <form action="/noPreferred/{{user.user_id}}" method="POST"><button class="btn btn-success">Enabled</button></form>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                         <hr>
+
                         <div class="row">
                             <div class="col-sm-12">
                                 <a class="btn btn-info " target="__blank"

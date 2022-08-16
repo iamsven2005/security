@@ -12,14 +12,25 @@
                 <ul class="navbar-nav">
                     {% if session['loggedin'] %}
                     <li class="nav-item"><a class="nav-link" href="/profile">Profile</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="/payment">Payment</a></li>
+                            <li><a class="dropdown-item" href="/history">History</a></li>
+                            <li>
+                                <hr class="dropdown-divider" />
+                            </li>
+                            <li><a class="dropdown-item" href="/logout">Logout</a></li>
+            </ul>
+        </li>
                     {% else %}
                     <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
                     <li class="nav-item"><a class="nav-link" href="/register">Sign Up</a></li>
                     {% endif %}
                 </ul>
             </div>
-        </div> 
+        </div>
     </div>
 </nav>
 

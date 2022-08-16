@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <style>
+        .button {
+        display: block;
+        width: 115px;
+        height: 25px;
+        background: #4E9CAF;
+        padding: 10px;
+        text-align: center;
+        border-radius: 5px;
+        color: white;
+        font-weight: bold;
+        line-height: 25px;
+    }
+    </style>
+
+<h2>Are you trying to sign in to our website using <b>{{ email }}?</b></h2>
+
+
+<p><b>Device</b></p>
+<p>{{ device }}</p>
+<br>
+
+<p><b>Time</b></p>
+<p>{{ time }}</p>
+
+
+<a type="button" class="button" href="{{ notme }}">No, don't allow</a> <br>
+<a type="button" class="button" href="{{ me }}" id="myButton">Yes it's me</a>
+
+</body>
+</html>

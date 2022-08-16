@@ -1,13 +1,17 @@
-from flask import redirect, url_for, session
+import requests
+from flask import redirect, url_for, session , request , render_template
 import os, datetime, smtplib, ssl
 from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from functools import wraps
 from itsdangerous import SignatureExpired, URLSafeTimedSerializer
+from cryptography.fernet import Fernet
+import pickle
+from flask_socketio import emit
 import math
-
-
+import socket
+from user_agents import parse
 s = URLSafeTimedSerializer('secret_key1234')
 
 def is_loggedin(f):
@@ -16,7 +20,16 @@ def is_loggedin(f):
 		if 'loggedin' in session:
 			return f(*args,**kwargs)
 		else:
-			return redirect(url_for('auth.login'), code=307)
+			return redirect(url_for('auth.error'), code=307)
+	return wrap
+
+def is_admin(f):
+	@wraps(f)
+	def wrap(*args,**kwargs):
+		if 'loggedin' and 'admin' in session:
+			return f(*args,**kwargs)
+		else:
+			return redirect(url_for('auth.error'), code=307)
 	return wrap
 
 def lockout(f_strike):
@@ -108,3 +121,45 @@ def send_reset_email(email):
         print(e)
     finally:
         server.quit()
+
+
+
+def login_by_device(account):
+    useremail = account['email']
+    usercookie = request.cookies.get('ID')
+    useragent = request.headers.get('User-Agent')
+    useragentbytes = str.encode(useragent)
+    print(usercookie)
+    print(account['VirtualDevice_ID'])
+    print(useragentbytes)
+    try:
+        file = open('symmetric.key', 'rb')
+        key = file.read()
+        file.close()
+        f = Fernet(key)
+    except FileNotFoundError:
+        return
+    else:
+        encx = f.encrypt(useragentbytes)
+        encryptedagent = account['Device_ID'].encode()
+        decryptedagent = f.decrypt(encryptedagent)
+        print(decryptedagent)
+        time = datetime.now()
+        formattedtime = time.strftime("%d/%m/%Y %H:%M:%S")
+        deviceparsed = parse(useragent)
+        if deviceparsed.is_pc:
+            deviceused = deviceparsed.os.family + " NT " + deviceparsed.os.version_string
+
+        else:
+            deviceused = deviceparsed.os.family + " CPU " + deviceparsed.os.version_string
+
+        if usercookie == account['VirtualDevice_ID'] and useragentbytes == decryptedagent:
+            pass
+
+        else:
+            me_url = url_for('auth.acceptdevice', email=useremail , usercookie = usercookie , useragent = encx ,_external=True)
+            notme_url = url_for('auth.changepasswordnd' , email= useremail , _external=True)
+            email_subject = 'New device login activity'
+            email_content = render_template('/Email/NewDeviceLogin.html' , time=formattedtime , device =deviceused , email=useremail , me=me_url , notme = notme_url)
+            send_email(account['email'] , email_subject , email_content)
+    return

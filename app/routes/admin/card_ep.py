@@ -2,6 +2,8 @@ from flask import Blueprint, render_template, redirect, request, url_for, flash 
 from app import app, bcrypt, mysql
 from app.forms import *
 from PIL import Image
+from app.utils import  *
+
 from uuid import uuid4
 import os
 import base64
@@ -17,6 +19,7 @@ basedir = os.getcwd()
 endpoint = Blueprint("credit", __name__)
 
 @endpoint.route('/credit')
+@is_admin
 def credit():
     cursor = mysql.connection.cursor()
     cursor.execute('SELECT * FROM credit_card')
@@ -24,6 +27,7 @@ def credit():
     return render_template('admin/credit/credit.html', credits = credits)
 
 @endpoint.route('/cardManager')
+@is_admin
 def cardManager():
     cursor = mysql.connection.cursor()
     cursor.execute('SELECT * FROM credit_card')

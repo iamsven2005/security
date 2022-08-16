@@ -1,0 +1,114 @@
+{% extends 'layouts/admin_base.html' %}
+{% block title %}
+Admin Frontpage
+{% endblock title %}
+{% block content %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/github.min.css" />
+<!--diff2html-css-->
+<!--diff2html-js-ui-->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const targetElement = document.getElementById('diff');
+    const diff2htmlUi = new Diff2HtmlUI(targetElement);
+    //diff2html-fileListToggle
+    //diff2html-synchronisedScroll
+    //diff2html-highlightCode
+  });
+</script>
+
+<div class="card mb-4">
+  <div class="card-header">
+    <i class="fas fa-table me-1"></i>
+    {{ folder }}
+  </div>
+  <div class="card-body">
+    <div class="row d-flex justify-content-between">
+
+      <div class="col-lg-6">{% if param_filter_date|length != 0 %}
+        <p style="color: firebrick;">Showing result for '{{ param_filter_date }}'</p>{% endif %}
+      </div>
+
+      <div class="col-lg-6 d-flex justify-content-end">
+        <div class="dropdown">
+          <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+            data-bs-toggle="dropdown" aria-expanded="false">
+            Filter by
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+            <li><a class="dropdown-item"
+              href="/admin/report/catalog/?filter_by_folder={{ param_filter_folder }}&filter_by_date=">All</a></li>
+          <li><a class="dropdown-item"
+              href="/admin/report/catalog/?filter_by_folder={{ param_filter_folder }}&filter_by_date=01">January</a>
+          </li>
+          <li><a class="dropdown-item"
+              href="/admin/report/catalog/?filter_by_folder={{ param_filter_folder }}&filter_by_date=02">February</a>
+          </li>
+          <li><a class="dropdown-item"
+              href="/admin/report/catalog/?filter_by_folder={{ param_filter_folder }}&filter_by_date=03">March</a>
+          </li>
+          <li><a class="dropdown-item"
+              href="/admin/report/catalog/?filter_by_folder={{ param_filter_folder }}&filter_by_date=04">April</a>
+          </li>
+          <li><a class="dropdown-item"
+              href="/admin/report/catalog/?filter_by_folder={{ param_filter_folder }}&filter_by_date=05">May</a>
+          </li>
+          <li><a class="dropdown-item"
+              href="/admin/report/catalog/?filter_by_folder={{ param_filter_folder }}&filter_by_date=06">June</a>
+          </li>
+          <li><a class="dropdown-item"
+              href="/admin/report/catalog/?filter_by_folder={{ param_filter_folder }}&filter_by_date=07">July</a>
+          </li>
+          <li><a class="dropdown-item"
+              href="/admin/report/catalog/?filter_by_folder={{ param_filter_folder }}&filter_by_date=08">August</a>
+          </li>
+          <li><a class="dropdown-item"
+              href="/admin/report/catalog/?filter_by_folder={{ param_filter_folder }}&filter_by_date=09">September</a>
+          </li>
+          <li><a class="dropdown-item"
+              href="/admin/report/catalog/?filter_by_folder={{ param_filter_folder }}&filter_by_date=10">October</a>
+          </li>
+          <li><a class="dropdown-item"
+              href="/admin/report/catalog/?filter_by_folder={{ param_filter_folder }}&filter_by_date=11">November</a>
+          </li>
+          <li><a class="dropdown-item"
+              href="/admin/report/catalog/?filter_by_folder={{ param_filter_folder }}&filter_by_date=12">December</a>
+          </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <table class="table table-bordered">
+      <thead>
+        <tr class="header">
+          <th>File</th>
+          <th>View</th>
+        </tr>
+      </thead>
+      {% if incident_dict|length != 0 %}
+      <tbody id="myTable">
+        {% for key in incident_dict %}
+        <tr>
+          <td>{{ key }}</td>
+          <td><a href="/admin/report/{{ param_filter_folder }}/{{ key[0:10] }}{{ key[10:] }}"><button
+                class="btn btn-warning"><i class="bi bi-pencil-square"></i></button></a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      {% else %}
+      <tbody>
+        <tr>
+          <td colspan="2">
+            <div class="d-flex justify-content-center p-2">
+              <h1>No Problem Occured</h1>
+            </div>
+          </td>
+        </tr>
+
+      </tbody>
+      {% endif %}
+    </table>
+  </div>
+</div>
+
+{% endblock content %}

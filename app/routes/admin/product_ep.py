@@ -4,12 +4,13 @@ from app.forms import *
 from PIL import Image
 from uuid import uuid4
 import os
-
+from app.utils import *
 basedir = os.getcwd()
 
 endpoint = Blueprint("product", __name__)
 
 @endpoint.route('/product')
+@is_admin
 def product():
     cursor = mysql.connection.cursor()
     cursor.execute('SELECT * FROM product')
@@ -17,6 +18,7 @@ def product():
     return render_template('admin/product/product.html', products=products)
 
 @endpoint.route('/addproduct', methods=['GET', 'POST'])
+@is_admin
 def addproduct():
     form = ProductForm(request.form)
     if request.method == 'POST' and form.validate():
@@ -39,6 +41,7 @@ def addproduct():
     return render_template('admin/product/product_form.html', form=form)
 
 @endpoint.route('/productdetails/<id>')
+@is_admin
 def productdetails(id):
     cursor = mysql.connection.cursor()
     cursor.execute('SELECT * FROM product WHERE product_id = %s', (id,))
@@ -53,6 +56,7 @@ def productdetails(id):
 #         cursor.execute('UPDATE product SET WHERE')
 
 @endpoint.route('/deleteproduct/<id>', methods=['POST'])
+@is_admin
 def deleteproduct(id):
     cursor = mysql.connection.cursor()
     cursor.execute('DELETE FROM product WHERE product_id = %s', (id,))
@@ -60,6 +64,7 @@ def deleteproduct(id):
     return redirect(request.referrer)
 
 @endpoint.route('/status_product/<id>', methods=['POST'])
+@is_admin
 def product_status(id):
     cursor = mysql.connection.cursor()
     cursor.execute('SELECT * FROM product WHERE product_id = %s', (id,))
@@ -69,4 +74,19 @@ def product_status(id):
     else:
         cursor.execute('UPDATE product SET product_status = %s WHERE product_id = %s', ('Active', id,))
     cursor.connection.commit()
+    return redirect(request.referrer)
+
+@endpoint.route('/deleteimg/')
+def deleteimg():
+    filepath = request.args.get('filepath', type=str, default="")
+    if filepath != '':
+        try:
+            if os.path.isfile('app/'+filepath):
+                os.remove('app/'+filepath)
+            else:
+                print('error deleting')
+        except:
+            print('some error idk')
+    else:
+        print('error')
     return redirect(request.referrer)

@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, request, url_for, flash , Flask , Response , session, flash, send_file
 from app import app, bcrypt, mysql
 from app.forms import *
+from app.utils import  *
 from PIL import Image
 from uuid import uuid4
 import os
@@ -17,13 +18,24 @@ basedir = os.getcwd()
 endpoint = Blueprint("table", __name__)
 
 @endpoint.route('/table')
+@is_admin
 def table():
+    datenow = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
     cursor = mysql.connection.cursor()
     cursor.execute('SELECT * FROM user')
-    table = cursor.fetchall()
-    return render_template('admin/table/admins.html', admins = table)
+    users = cursor.fetchall()
+    cursor.execute("""SELECT activity.user_id, severity, timestamp, description FROM secprj.activity 
+    LEFT JOIN secprj.user 
+    ON activity.user_id = user.user_id
+    WHERE user.status = 'admin'
+    AND activity.timestamp >= %s
+    ORDER BY timestamp DESC;""", (datenow,))
+    activity = cursor.fetchall()
+    return render_template('admin/table/admins.html', admins = users, activity=activity)
+
 
 @endpoint.route('/addAdmin', methods=["GET", "POST"])
+@is_admin
 def addAdmin():
     form = AdminForm(request.form)
     cursor = mysql.connection.cursor()
@@ -45,6 +57,7 @@ def addAdmin():
     return render_template('admin/table/add_admin.html', form = form)
 
 @endpoint.route('/updateAdmin/<id>', methods=['GET', 'POST'])
+@is_admin
 def updateAdmin(id):
     form = AdminForm(request.form)
     cursor = mysql.connection.cursor()

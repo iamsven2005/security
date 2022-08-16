@@ -1,10 +1,12 @@
-
 from email import message
 from email.mime import base
-from wtforms import Form, StringField, DateField, PasswordField, IntegerField, DecimalField, validators, HiddenField, SubmitField, SelectField
-from wtforms import Form, StringField, DateField, PasswordField, IntegerField, DecimalField, validators , ValidationError
+from wtforms import Form, StringField, DateField, PasswordField, IntegerField, DecimalField, validators, HiddenField, \
+    SubmitField, SelectField
+from wtforms import Form, StringField, DateField, PasswordField, IntegerField, DecimalField, validators, ValidationError
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from flask_wtf import RecaptchaField
+
+
 def validate_card(form, field):
     card_number = field.data
     temp = str(card_number)
@@ -34,11 +36,13 @@ def validate_card(form, field):
     if validation != 0:
         raise ValidationError('Card number is Invalid')
 
+
 def validatecvv(form, field):
     if len(field.data) > 4 or len(field.data) < 3:
         raise ValidationError('Enter the 3 or 4 digit number that is found at the back of the credit/debit card')
 
-def useremailvalidator(form , field):
+
+def useremailvalidator(form, field):
     if 'admin.com' in field.data:
         raise ValidationError('Invalid Email Address')
 
@@ -46,22 +50,27 @@ def useremailvalidator(form , field):
 class baseform(Form):
     csrf_token = HiddenField()
 
+
 class RegistrationForm(baseform):
-    email = StringField("Email Address", [validators.Length(min=6, max=35), validators.Email() , useremailvalidator])
-    confirmemail = StringField("Confirm Email Address", [validators.Length(min=6, max=35), validators.Email() , validators.EqualTo('email' , message='Email must match')])
+    email = StringField("Email Address", [validators.Length(min=6, max=35), validators.Email(), useremailvalidator])
+    confirmemail = StringField("Confirm Email Address", [validators.Length(min=6, max=35), validators.Email(),
+                                                         validators.EqualTo('email', message='Email must match')])
     recaptcha = RecaptchaField()
 
 
 class RegistrationForm2(baseform):
-    username = StringField('Username'  , [validators.Length(min=1, max=150), validators.DataRequired()])
-    password = PasswordField("Password" , [validators.length(min=8 , message="Please enter a stronger password") , validators.DataRequired() , validators.Regexp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$" , message="Weak Password") ])
-    confirmpassword = PasswordField("Confirm Password", [validators.length(min=8) , validators.EqualTo('password' , message='Password must match')])
-
+    username = StringField('Username', [validators.Length(min=1, max=150), validators.DataRequired()])
+    password = PasswordField("Password", [validators.length(min=8, message="Please enter a stronger password"),
+                                          validators.DataRequired(), validators.Regexp(
+            "^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$", message="Weak Password")])
+    confirmpassword = PasswordField("Confirm Password", [validators.length(min=8),
+                                                         validators.EqualTo('password', message='Password must match')])
 
 
 class LoginForm(baseform):
     username = StringField("Username", [validators.Length(min=4, max=25)])
     password = PasswordField("Password", [validators.DataRequired()])
+
 
 class TWOFAForm(baseform):
     otp = IntegerField(
@@ -72,12 +81,13 @@ class TWOFAForm(baseform):
         ]
     )
 
+
 class ProductForm(baseform):
     productimage = FileField(
         "Image",
         validators=[
             FileAllowed(["jpg", "png", "gif", "jpeg"], "Images only please"),
-            
+
         ],
     )
     productname = StringField("Product Name", [validators.Length(min=4, max=25)])
@@ -97,25 +107,25 @@ class ProductForm(baseform):
         ]
     )
 
+
 class RequestResetForm(baseform):
     email = StringField(
         "Email Address", [validators.Length(min=6, max=35), validators.Email()]
     )
+
+
 class ResetPasswordForm(baseform):
-    password = PasswordField(
-        "New Password",
-        [
-            validators.DataRequired(),
-            validators.EqualTo("confirm", message="Passwords must match"),
-            validators.length(
-                min=8, max=32, message="Password must be at least 8 characters"
-            ),
-        ],
-    )
-    confirm = PasswordField("Repeat Password")
+    password = PasswordField("Password", [validators.length(min=8, message="Please enter a stronger password"),
+                                          validators.DataRequired(), validators.Regexp(
+            "^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$", message="Weak Password")])
+    confirm = PasswordField("Confirm Password", [validators.length(min=8),
+                                                         validators.EqualTo('password', message='Password must match')])
+
+
 class CreditForm(baseform):
-    card_number = StringField('Card Number', [validators.length(min=13, max=16), validators.data_required(),validate_card])
-    cvv = PasswordField('CVV',  [validators.data_required(),validatecvv])
+    card_number = StringField('Card Number',
+                              [validators.length(min=13, max=16), validators.data_required(), validate_card])
+    cvv = PasswordField('CVV', [validators.data_required(), validatecvv])
 
     exp_mm = SelectField('Expiration MM',
                          choices=[('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6'), ('7', '7'),
@@ -125,6 +135,7 @@ class CreditForm(baseform):
                                   ('2026', '2026'), ('2027', '2027'), ('2028', '2028'), ('2029', '2029'),
                                   ('2030', '2030'), ('2031', '2031'), ('2032', '2032')], coerce=str)
     creditName = StringField("credit Name", [validators.Length(min=4, max=100)])
+
 
 class AdminForm(baseform):
     username = StringField("Username", [validators.Length(min=4, max=25)])
@@ -138,10 +149,25 @@ class AdminForm(baseform):
             validators.length(
                 min=8, max=32, message="Password must be at least 8 characters"
             ),
-            validators.Regexp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$",message="Weak Password")
+            validators.Regexp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$",
+                              message="Weak Password")
         ],
     )
     status = SelectField('Status', [validators.Length(min=1, max=50), validators.DataRequired()],
-                       choices=[('', 'Select'), ('admin', 'admin'), ('customer', 'customer')], default='')
+                         choices=[('', 'Select'), ('admin', 'admin'), ('customer', 'customer')], default='')
     role = SelectField('Role', [validators.Length(min=1, max=50), validators.DataRequired()],
-                           choices=[('', 'Select'), ('admin', 'admin'),('card', 'card'),('user', 'user')], default='')
+                       choices=[('', 'Select'), ('admin', 'admin'), ('card', 'card'), ('user', 'user'), ('customer', 'customer')], default='')
+class ChangepasswordForm(baseform):
+    current_password = PasswordField("Current Password" , [validators.DataRequired()])
+    password = PasswordField("Password" , [validators.length(min=8 , message="Please enter a stronger password") , validators.DataRequired() , validators.Regexp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$" , message="Weak Password")])
+    confirmpassword = PasswordField("Confirm Password", [validators.length(min=8) , validators.EqualTo('password' , message='Password must match')])
+
+class TimeForm(baseform):
+    question = StringField("What is yr name?", [validators.Length(min=4, max=25),validators.data_required()])
+    time = SelectField('Day Preferred', [validators.Length(min=1, max=50), validators.DataRequired()],
+                       choices=[('', 'Select'), ('1', 'Monday'), ('2', 'Tuesday'), ('3', 'Wednesday'),
+                                ('4', 'Thursday'), ('5', 'Friday'), ('6', 'Saturday')
+                           , ('7', 'Sunday')], default='')
+
+class QuestionForm(baseform):
+    question = StringField("What is yr name?", [validators.Length(min=4, max=25),validators.data_required()])

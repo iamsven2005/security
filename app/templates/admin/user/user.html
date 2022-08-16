@@ -20,9 +20,59 @@
         <td>{{ user.username }}</td>
         <td>{{ user.status }}</td>
         <td><a href="/admin/updateAdmin/{{user.user_id}}" class="btn btn-warning" id=user.user_id)>Update</a></td>
+        <td><button class="btn btn-info activity">Activity</button></td>
+        {% if user.Activation == 'no' %}
+        <td>
+            <form action="{{url_for('user.activated', id=user.user_id)}}" method="POST"><button class="btn btn-secondary">Deactivated</button></form>
+        </td>
+        {% else %}
+        <td>
+            <form action="{{url_for('user.disabled', id=user.user_id)}}" method="POST"><button class="btn btn-success">Activated</button></form>
+        </td>
+        {% endif %}
+
     </tr>
         {% endif %}
+
+
+    <tr style="display: none;">
+      <td colspan="5">
+        <table class="table">
+          {% for fl in activity %}
+              {%if fl.severity == 'high'%}
+            <tr style="background-color: #ff8080;">
+                          {% if user.user_id == fl.user_id %}
+
+              <td>{{fl.description}} at {{fl.timestamp}}</td>
+            {%endif%}
+
+
+              {%elif fl.severity == 'low' %}
+                <tr style="background-color: #e6ac00;">
+                  {% if user.user_id == fl.user_id %}
+
+              <td>{{fl.description}} at {{fl.timestamp}}</td>
+
+            {%endif%}
+
+
+              {% endif %}
+          </tr>
+          {%endfor%}
+        </table>
+      </td>
+    </tr>
+
     {% endfor %}
     </table>
+
+    <script>
+      <!-- give buttons functionality to toggle to show user account activity -->
+        $('.activity').on('click', function(e) {
+          e.preventDefault();
+          var tr = $(this).parent().parent().next('tr');
+          tr.toggle(150);
+        })
+    </script>
 
 {% endblock content %}

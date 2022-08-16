@@ -1,0 +1,35 @@
+{% extends 'layouts/admin_base.html' %}
+{% block title %}
+Admin Frontpage
+{% endblock title %}
+{% block content %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/github.min.css" />
+<!--diff2html-css-->
+<!--diff2html-js-ui-->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const targetElement = document.getElementById('diff');
+    const diff2htmlUi = new Diff2HtmlUI(targetElement);
+    //diff2html-fileListToggle
+    //diff2html-synchronisedScroll
+    //diff2html-highlightCode
+  });
+</script>
+
+<div id="diff">
+
+    <table class="table table-bordered" style="margin: 10px;">
+        <tbody id="myTable">
+            {% for key in notif %}
+            <tr>
+                <td><a href="/admin/archive/{{ key }}">{{ key }}</a></td>
+                <td>{{ notif[key] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+</div>
+
+{% endblock content %}
