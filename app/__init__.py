@@ -23,27 +23,24 @@ app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']
 bcrypt = Bcrypt(app)
 
 #flask-mysqldb config
-app.config['MYSQL_HOST'] = os.getenv('MYSQL_HOST')
-app.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
-app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
-app.config['MYSQL_DB'] = os.getenv('MYSQL_DB')
-app.config['MYSQL_CURSORCLASS'] = os.getenv('MYSQL_CURSORCLASS')
+app.secret_key = 'your secret key'
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = '5002nevsmai!'
+app.config['MYSQL_DB'] = 'secprj'
+
 mysql = MySQL(app)
 
 
 #flask-limiter config
-limiter = Limiter(
-    app,
-    key_func=get_remote_address,
-    default_limits=["1000 per day", "5 per seconds"]
-)
+limiter = Limiter(get_remote_address, app=app, default_limits=["200 per day", "50 per hour"])
 
 
 #RECAPTCHA
 
 app.config['RECAPTCHA_ENABLED'] = True
-app.config['RECAPTCHA_PUBLIC_KEY'] = "6LfCX_EgAAAAAJUgvFM1q0CUCd7rpczzYHsoE6vJ"
-app.config['RECAPTCHA_PRIVATE_KEY'] = '6LfCX_EgAAAAAJB_BLVtbqU3HtTwBbfr-7L72c_N'
+app.config['RECAPTCHA_PUBLIC_KEY'] = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+app.config['RECAPTCHA_PRIVATE_KEY'] = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
 
 
 recaptcha = ReCaptcha()
@@ -69,17 +66,6 @@ def ratelimit_handler(e):
 def perms_error(e):
   return render_template('error/403.html')
 
-ip_whitelist = ['SG']
-
-@app.before_request
-def block_method():
-    ip_addr = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr) #check for ip addr in proxy server; else request.remote_addr
-    ip = geocoder.ip('101.234.149.255') #this is a demo sg ip address
-    country_ip = ip.country
-    print(ip_addr)
-    print(ip.country)
-    if country_ip not in ip_whitelist:
-        abort(403)
 
 from app.routes.common_ep import endpoint as EP_Common
 from app.routes.auth_ep import endpoint as EP_Auth
