@@ -1,0 +1,364 @@
+
+    <style>
+      :root {
+        --background-color: #181f2a;
+        --violet: rgba(78, 58, 183, 0.55);
+      }
+
+      body {
+        background: var(--background-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      #visualizer {
+        height: 30%;
+        width: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+      }
+
+      .track {
+        width: 3%;
+        height: 25%;
+        background: var(--violet);
+        transition: 0.01s;
+      }
+
+      .track:nth-child(2n) {
+        height: 15%;
+      }
+
+      .track:nth-child(3n) {
+        height: 20%;
+      }
+
+      .track:nth-child(7n) {
+        height: 35%;
+      }
+
+      #toggle-play {
+        border: none;
+        background-color: transparent;
+        fill: var(--violet);
+        min-height: 25px;
+        min-width: 25px;
+        width: 2%;
+        height: 2%;
+        position: absolute;
+        top: 85vh;
+        left: 49vw;
+      }
+
+      #toggle-play:hover {
+        cursor: pointer;
+      }
+    </style>
+
+    <script>
+      window.console = window.console || function (t) {};
+    </script>
+  </head>
+
+  <body
+    translate="no"
+    data-new-gr-c-s-check-loaded="14.1110.0"
+    data-gr-ext-installed=""
+  >
+    <audio
+      src="https://cdn.pixabay.com/download/audio/2023/03/01/audio_74accea696.mp3?filename=trap-beat-dark-autumn-night-141114.mp3"
+      crossorigin="anonymous"
+      type="audio/mp3"
+      id="audio"
+    ></audio>
+
+    <div id="visualizer">
+      <div class="track" style="height: 0.784314%"></div>
+      <div class="track" style="height: 53.7255%"></div>
+      <div class="track" style="height: 76.4706%"></div>
+      <div class="track" style="height: 60.3922%"></div>
+      <div class="track" style="height: 68.2353%"></div>
+      <div class="track" style="height: 54.902%"></div>
+      <div class="track" style="height: 68.2353%"></div>
+      <div class="track" style="height: 62.7451%"></div>
+      <div class="track" style="height: 64.7059%"></div>
+      <div class="track" style="height: 40.3922%"></div>
+      <div class="track" style="height: 42.7451%"></div>
+      <div class="track" style="height: 49.0196%"></div>
+      <div class="track" style="height: 50.5882%"></div>
+      <div class="track" style="height: 63.1373%"></div>
+      <div class="track" style="height: 42.3529%"></div>
+      <div class="track" style="height: 55.2941%"></div>
+      <div class="track" style="height: 44.3137%"></div>
+      <div class="track" style="height: 31.3725%"></div>
+      <div class="track" style="height: 27.8431%"></div>
+      <div class="track" style="height: 41.9608%"></div>
+      <div class="track" style="height: 54.902%"></div>
+      <div class="track" style="height: 49.4118%"></div>
+      <div class="track" style="height: 55.6863%"></div>
+      <div class="track" style="height: 48.2353%"></div>
+      <div class="track" style="height: 44.3137%"></div>
+      <div class="track" style="height: 49.0196%"></div>
+      <div class="track" style="height: 50.5882%"></div>
+      <div class="track" style="height: 44.3137%"></div>
+      <div class="track" style="height: 30.1961%"></div>
+      <div class="track" style="height: 23.9216%"></div>
+      <div class="track" style="height: 33.7255%"></div>
+      <div class="track" style="height: 43.1373%"></div>
+      <div class="track" style="height: 49.8039%"></div>
+      <div class="track" style="height: 33.7255%"></div>
+      <div class="track" style="height: 36.0784%"></div>
+      <div class="track" style="height: 12.9412%"></div>
+      <div class="track" style="height: 13.7255%"></div>
+      <div class="track" style="height: 18.0392%"></div>
+      <div class="track" style="height: 27.0588%"></div>
+      <div class="track" style="height: 52.9412%"></div>
+      <div class="track" style="height: 28.6275%"></div>
+      <div class="track" style="height: 41.1765%"></div>
+      <div class="track" style="height: 24.3137%"></div>
+      <div class="track" style="height: 29.8039%"></div>
+      <div class="track" style="height: 27.0588%"></div>
+      <div class="track" style="height: 26.2745%"></div>
+      <div class="track" style="height: 27.8431%"></div>
+      <div class="track" style="height: 14.1176%"></div>
+      <div class="track" style="height: 16.8627%"></div>
+      <div class="track" style="height: 23.5294%"></div>
+      <div class="track" style="height: 9.80392%"></div>
+      <div class="track" style="height: 9.41176%"></div>
+      <div class="track" style="height: 12.549%"></div>
+      <div class="track" style="height: 19.2157%"></div>
+      <div class="track" style="height: 21.9608%"></div>
+      <div class="track" style="height: 4.31373%"></div>
+      <div class="track" style="height: 11.7647%"></div>
+      <div class="track" style="height: 24.7059%"></div>
+      <div class="track" style="height: 12.9412%"></div>
+      <div class="track" style="height: 6.66667%"></div>
+    </div>
+
+    <button id="toggle-play">
+      <svg viewBox="0 0 448 512" title="play">
+        <path
+          d="M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z"
+        ></path>
+      </svg>
+    </button>
+    <script>
+      (window.HUB_EVENTS = {
+        ASSET_ADDED: "ASSET_ADDED",
+        ASSET_DELETED: "ASSET_DELETED",
+        ASSET_DESELECTED: "ASSET_DESELECTED",
+        ASSET_SELECTED: "ASSET_SELECTED",
+        ASSET_UPDATED: "ASSET_UPDATED",
+        CONSOLE_CHANGE: "CONSOLE_CHANGE",
+        CONSOLE_CLOSED: "CONSOLE_CLOSED",
+        CONSOLE_EVENT: "CONSOLE_EVENT",
+        CONSOLE_OPENED: "CONSOLE_OPENED",
+        CONSOLE_RUN_COMMAND: "CONSOLE_RUN_COMMAND",
+        CONSOLE_SERVER_CHANGE: "CONSOLE_SERVER_CHANGE",
+        EMBED_ACTIVE_PEN_CHANGE: "EMBED_ACTIVE_PEN_CHANGE",
+        EMBED_ACTIVE_THEME_CHANGE: "EMBED_ACTIVE_THEME_CHANGE",
+        EMBED_ATTRIBUTE_CHANGE: "EMBED_ATTRIBUTE_CHANGE",
+        EMBED_RESHOWN: "EMBED_RESHOWN",
+        FORMAT_FINISH: "FORMAT_FINISH",
+        FORMAT_ERROR: "FORMAT_ERROR",
+        FORMAT_START: "FORMAT_START",
+        IFRAME_PREVIEW_RELOAD_CSS: "IFRAME_PREVIEW_RELOAD_CSS",
+        IFRAME_PREVIEW_URL_CHANGE: "IFRAME_PREVIEW_URL_CHANGE",
+        KEY_PRESS: "KEY_PRESS",
+        LINTER_FINISH: "LINTER_FINISH",
+        LINTER_START: "LINTER_START",
+        PEN_CHANGE_SERVER: "PEN_CHANGE_SERVER",
+        PEN_CHANGE: "PEN_CHANGE",
+        PEN_EDITOR_CLOSE: "PEN_EDITOR_CLOSE",
+        PEN_EDITOR_CODE_FOLD: "PEN_EDITOR_CODE_FOLD",
+        PEN_EDITOR_ERRORS: "PEN_EDITOR_ERRORS",
+        PEN_EDITOR_EXPAND: "PEN_EDITOR_EXPAND",
+        PEN_EDITOR_FOLD_ALL: "PEN_EDITOR_FOLD_ALL",
+        PEN_EDITOR_LOADED: "PEN_EDITOR_LOADED",
+        PEN_EDITOR_REFRESH_REQUEST: "PEN_EDITOR_REFRESH_REQUEST",
+        PEN_EDITOR_RESET_SIZES: "PEN_EDITOR_RESET_SIZES",
+        PEN_EDITOR_SIZES_CHANGE: "PEN_EDITOR_SIZES_CHANGE",
+        PEN_EDITOR_UI_CHANGE_SERVER: "PEN_EDITOR_UI_CHANGE_SERVER",
+        PEN_EDITOR_UI_CHANGE: "PEN_EDITOR_UI_CHANGE",
+        PEN_EDITOR_UI_DISABLE: "PEN_EDITOR_UI_DISABLE",
+        PEN_EDITOR_UI_ENABLE: "PEN_EDITOR_UI_ENABLE",
+        PEN_EDITOR_UNFOLD_ALL: "PEN_EDITOR_UNFOLD_ALL",
+        PEN_ERROR_INFINITE_LOOP: "PEN_ERROR_INFINITE_LOOP",
+        PEN_ERROR_RUNTIME: "PEN_ERROR_RUNTIME",
+        PEN_ERRORS: "PEN_ERRORS",
+        PEN_LIVE_CHANGE: "PEN_LIVE_CHANGE",
+        PEN_LOGS: "PEN_LOGS",
+        PEN_MANIFEST_CHANGE: "PEN_MANIFEST_CHANGE",
+        PEN_MANIFEST_FULL: "PEN_MANIFEST_FULL",
+        PEN_PREVIEW_FINISH: "PEN_PREVIEW_FINISH",
+        PEN_PREVIEW_START: "PEN_PREVIEW_START",
+        PEN_SAVED: "PEN_SAVED",
+        POPUP_CLOSE: "POPUP_CLOSE",
+        POPUP_OPEN: "POPUP_OPEN",
+        POST_CHANGE: "POST_CHANGE",
+        POST_SAVED: "POST_SAVED",
+        PROCESSING_FINISH: "PROCESSING_FINISH",
+        PROCESSING_START: "PROCESSED_STARTED",
+      }),
+        "object" != typeof window.CP && (window.CP = {}),
+        (window.CP.PenTimer = {
+          programNoLongerBeingMonitored: !1,
+          timeOfFirstCallToShouldStopLoop: 0,
+          _loopExits: {},
+          _loopTimers: {},
+          START_MONITORING_AFTER: 2e3,
+          STOP_ALL_MONITORING_TIMEOUT: 5e3,
+          MAX_TIME_IN_LOOP_WO_EXIT: 2200,
+          exitedLoop: function (E) {
+            this._loopExits[E] = !0;
+          },
+          shouldStopLoop: function (E) {
+            if (this.programKilledSoStopMonitoring) return !0;
+            if (this.programNoLongerBeingMonitored) return !1;
+            if (this._loopExits[E]) return !1;
+            var _ = this._getTime();
+            if (0 === this.timeOfFirstCallToShouldStopLoop)
+              return (this.timeOfFirstCallToShouldStopLoop = _), !1;
+            var o = _ - this.timeOfFirstCallToShouldStopLoop;
+            if (o < this.START_MONITORING_AFTER) return !1;
+            if (o > this.STOP_ALL_MONITORING_TIMEOUT)
+              return (this.programNoLongerBeingMonitored = !0), !1;
+            try {
+              this._checkOnInfiniteLoop(E, _);
+            } catch {
+              return (
+                this._sendErrorMessageToEditor(),
+                (this.programKilledSoStopMonitoring = !0),
+                !0
+              );
+            }
+            return !1;
+          },
+          _sendErrorMessageToEditor: function () {
+            try {
+              if (this._shouldPostMessage()) {
+                var E = {
+                  topic: HUB_EVENTS.PEN_ERROR_INFINITE_LOOP,
+                  data: { line: this._findAroundLineNumber() },
+                };
+                parent.postMessage(E, "*");
+              } else this._throwAnErrorToStopPen();
+            } catch {
+              this._throwAnErrorToStopPen();
+            }
+          },
+          _shouldPostMessage: function () {
+            return document.location.href.match(/boomboom/);
+          },
+          _throwAnErrorToStopPen: function () {
+            throw "We found an infinite loop in your Pen. We've stopped the Pen from running. More details and workarounds at https://blog.codepen.io/2016/06/08/can-adjust-infinite-loop-protection-timing/";
+          },
+          _findAroundLineNumber: function () {
+            var E = new Error("ignored"),
+              _ = 0;
+            if (E.stack) {
+              var o = E.stack.match(/boomboom\S+:(\d+):\d+/);
+              o && (_ = o[1]);
+            }
+            return _;
+          },
+          _checkOnInfiniteLoop: function (E, _) {
+            if (!this._loopTimers[E]) return (this._loopTimers[E] = _), !1;
+            if (_ - this._loopTimers[E] > this.MAX_TIME_IN_LOOP_WO_EXIT)
+              throw "Infinite Loop found on loop: " + E;
+          },
+          _getTime: function () {
+            return Date.now();
+          },
+        }),
+        (window.CP.shouldStopExecution = function (E) {
+          var _ = window.CP.PenTimer.shouldStopLoop(E);
+          return (
+            !0 === _ &&
+              console.warn(
+                "[CodePen]: An infinite loop (or a loop taking too long) was detected, so we stopped its execution. More details at https://blog.codepen.io/2016/06/08/can-adjust-infinite-loop-protection-timing/"
+              ),
+            _
+          );
+        }),
+        (window.CP.exitedLoop = function (E) {
+          window.CP.PenTimer.exitedLoop(E);
+        });
+    </script>
+
+    <script id="rendered-js">
+      let context, analyser, dataArray;
+      const visualizer = document.getElementById("visualizer");
+      const togglePlayBtn = document.getElementById("toggle-play");
+
+      const audio = document.getElementById("audio");
+      audio.crossOrigin = "anonymous";
+
+      const togglePlayer = () => {
+        if (!context) {
+          preparation();
+        }
+        if (audio.paused) {
+          playAudio();
+        } else {
+          pauseAudio();
+        }
+      };
+
+      const playAudio = () => {
+        audio.play();
+        loop();
+        togglePlayBtn.innerHTML = `<svg viewBox="0 0 448 512" title="pause">
+              <path d="M144 479H48c-26.5 0-48-21.5-48-48V79c0-26.5 21.5-48 48-48h96c26.5 0 48 21.5 48 48v352c0 26.5-21.5 48-48 48zm304-48V79c0-26.5-21.5-48-48-48h-96c-26.5 0-48 21.5-48 48v352c0 26.5 21.5 48 48 48h96c26.5 0 48-21.5 48-48z" />
+          </svg>`;
+      };
+
+      const pauseAudio = () => {
+        audio.pause();
+        togglePlayBtn.innerHTML = `<svg viewBox="0 0 448 512" title="play">
+              <path d="M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z" />
+          </svg>`;
+      };
+
+      const preparation = () => {
+        context = new AudioContext();
+        analyser = context.createAnalyser();
+        const src = context.createMediaElementSource(audio);
+        src.connect(analyser);
+        analyser.connect(context.destination);
+        loop();
+      };
+
+      const loop = () => {
+        if (audio.paused) {
+          return;
+        }
+
+        window.requestAnimationFrame(loop);
+
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
+        analyser.getByteFrequencyData(dataArray);
+        changeTracks();
+      };
+
+      const changeTracks = () => {
+        for (let i = 0; i < visualizer.children.length; i++) {
+          visualizer.children[i].style.height = `${
+            dataArray[i * 5] * 0.39215686274
+          }%`;
+        }
+      };
+
+      togglePlayBtn.addEventListener("click", togglePlayer);
+      //# sourceURL=pen.js
+    </script>
+  </body>
+</html>
